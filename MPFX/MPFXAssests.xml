@@ -56,6 +56,8 @@
 		<MPFXVec4BufferAsset Id="MPFXVignettePostBuffer" Size="1" />
 	</GlobalPostShader>
 	
+	
+	
 	<PostProcessingShader Id="MPFXRGB2HSVShaderPre" Path="Shaders/RGB2HSVEffectsPre.frag" RenderPassId="32" SubpassId="63">
 		<MPFXDefaultBufferAsset Id="MPFXRGB2HSVBuffer" Size="1" />
 	</PostProcessingShader>
@@ -68,5 +70,26 @@
 	</PostProcessingShader>
 	<GlobalPostShader Id="MPFXHSV2RGBShaderPost" Path="Shaders/HSV2RGBEffectsPost.frag" RenderPassId="32" SubpassId="64">
 		<MPFXDefaultBufferAsset Id="MPFXHSV2RGBBuffer" />
+	</GlobalPostShader>
+
+	<PostProcessingShader Id="MPFXSingleColorShaderPre" Path="Shaders/SingleColorPre.frag" RenderPassId="32" SubpassId="65">
+		<MPFXDefaultBufferAsset Id="MPFXSingleColorBuffer" Size="1" />
+	</PostProcessingShader>
+	<GlobalPostShader Id="MPFXSingleColorShaderPost" Path="Shaders/SingleColorPost.frag" RenderPassId="32" SubpassId="65">
+		<MPFXDefaultBufferAsset Id="MPFXSingleColorBuffer" />
+	</GlobalPostShader>
+
+	<PostProcessingShader Id="MPFXSingleColorSmallestShaderPre" Path="Shaders/SingleColorSmallestPre.frag" RenderPassId="32" SubpassId="66">
+		<MPFXDefaultBufferAsset Id="MPFXSingleColorSmallestBuffer" Size="1" />
+	</PostProcessingShader>
+	<GlobalPostShader Id="MPFXSingleColorSmallestShaderPost" Path="Shaders/SingleColorSmallestPost.frag" RenderPassId="32" SubpassId="66">
+		<MPFXDefaultBufferAsset Id="MPFXSingleColorSmallestBuffer" />
+	</GlobalPostShader>
+
+	<PostProcessingShader Id="MPFXSingleColorSolidShaderPre" Path="Shaders/SingleColorSolidPre.frag" RenderPassId="32" SubpassId="67">
+		<MPFXDefaultBufferAsset Id="MPFXSingleColorSolidBuffer" Size="1" />
+	</PostProcessingShader>
+	<GlobalPostShader Id="MPFXSingleColorSolidShaderPost" Path="Shaders/SingleColorSolidPost.frag" RenderPassId="32" SubpassId="67">
+		<MPFXDefaultBufferAsset Id="MPFXSingleColorSolidBuffer" />
 	</GlobalPostShader>
 </Assets>

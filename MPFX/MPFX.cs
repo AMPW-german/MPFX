@@ -83,6 +83,21 @@ namespace MPFX
         private static float HSV2RGBFloatPreImgui = 0;
         private static bool HSV2RGBPostImgui = false;
         private static float HSV2RGBFloatPostImgui = 0;
+
+        private static bool SingleColorPreImgui = false;
+        private static float SingleColorFloatPreImgui = 0;
+        private static bool SingleColorPostImgui = false;
+        private static float SingleColorFloatPostImgui = 0;
+
+        private static bool SingleColorSmallestPreImgui = false;
+        private static float SingleColorSmallestFloatPreImgui = 0;
+        private static bool SingleColorSmallestPostImgui = false;
+        private static float SingleColorSmallestFloatPostImgui = 0;
+
+        private static bool SingleColorSolidPreImgui = false;
+        private static float SingleColorSolidFloatPreImgui = 0;
+        private static bool SingleColorSolidPostImgui = false;
+        private static float SingleColorSolidFloatPostImgui = 0;
         #endregion
         #endregion
 
@@ -123,14 +138,6 @@ namespace MPFX
 
             if (MPFXDefaultBuffer.LookupSpan != null)
             {
-                Span<MPFXDefaultBuffer> Rgb2hsvData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXRGB2HSVBuffer"));
-                Rgb2hsvData[0].a = RGB2HSVPreImgui ? RGB2HSVFloatPreImgui : 0;
-                Rgb2hsvData[0].b = RGB2HSVPostImgui ? RGB2HSVFloatPostImgui : 0;
-
-                Span<MPFXDefaultBuffer> Hsv2rgbData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXHSV2RGBBuffer"));
-                Hsv2rgbData[0].a = HSV2RGBPreImgui ? HSV2RGBFloatPreImgui : 0;
-                Hsv2rgbData[0].b = HSV2RGBPostImgui ? HSV2RGBFloatPostImgui : 0;
-
                 Span<MPFXDefaultBuffer> BrightnessData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXBrightnessBuffer"));
                 BrightnessData[0].a = BrightnessPreImgui ? BrightnessFloatPreImgui : 1f;
                 BrightnessData[0].b = BrightnessPostImgui ? BrightnessFloatPostImgui : 1f;
@@ -150,6 +157,27 @@ namespace MPFX
                 Span<MPFXDefaultBuffer> HueShiftData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXHueShiftBuffer"));
                 HueShiftData[0].a = HueShiftPreImgui ? HueShiftFloatPreImgui / 180f * (float) Math.PI : 0f;
                 HueShiftData[0].b = HueShiftPostImgui ? HueShiftFloatPostImgui / 180f * (float)Math.PI : 0f;
+
+
+                Span<MPFXDefaultBuffer> Rgb2hsvData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXRGB2HSVBuffer"));
+                Rgb2hsvData[0].a = RGB2HSVPreImgui ? RGB2HSVFloatPreImgui : 0;
+                Rgb2hsvData[0].b = RGB2HSVPostImgui ? RGB2HSVFloatPostImgui : 0;
+
+                Span<MPFXDefaultBuffer> Hsv2rgbData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXHSV2RGBBuffer"));
+                Hsv2rgbData[0].a = HSV2RGBPreImgui ? HSV2RGBFloatPreImgui : 0;
+                Hsv2rgbData[0].b = HSV2RGBPostImgui ? HSV2RGBFloatPostImgui : 0;
+
+                Span<MPFXDefaultBuffer> SingleColorData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorBuffer"));
+                SingleColorData[0].a = SingleColorPreImgui ? SingleColorFloatPreImgui : 0;
+                SingleColorData[0].b = SingleColorPostImgui ? SingleColorFloatPostImgui : 0;
+
+                Span<MPFXDefaultBuffer> SingleColorSmallestData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorSmallestBuffer"));
+                SingleColorSmallestData[0].a = SingleColorSmallestPreImgui ? SingleColorSmallestFloatPreImgui : 0;
+                SingleColorSmallestData[0].b = SingleColorSmallestPostImgui ? SingleColorSmallestFloatPostImgui : 0;
+
+                Span<MPFXDefaultBuffer> SingleColorSolidData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorSolidBuffer"));
+                SingleColorSolidData[0].a = SingleColorSolidPreImgui ? SingleColorSolidFloatPreImgui : 0;
+                SingleColorSolidData[0].b = SingleColorSolidPostImgui ? SingleColorSolidFloatPostImgui : 0;
             }
 
             if (MPFXVec4Buffer.LookupSpan != null)
@@ -869,6 +897,102 @@ namespace MPFX
                             ImGui.TableNextColumn();
                             ImGui.PushID("HSV2RGBPostStrength");
                             ImGui.SliderFloat("Percentage", ref HSV2RGBFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                            ImGui.PopID();
+                            ImGui.EndDisabled();
+                        }
+
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.TableSetColumnIndex(0);
+                        if (ImGui.CollapsingHeader("SingleColor", TreeFlags | ImGuiTreeNodeFlags.SpanAllColumns))
+                        {
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorPreCheckbox");
+                            ImGui.Checkbox("pre imgui", ref SingleColorPreImgui);
+                            ImGui.PopID();
+
+                            ImGui.BeginDisabled(!SingleColorPreImgui);
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorPreStrength");
+                            ImGui.SliderFloat("Percentage", ref SingleColorFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                            ImGui.PopID();
+                            ImGui.EndDisabled();
+
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorPostCheckbox");
+                            ImGui.Checkbox("post imgui", ref SingleColorPostImgui);
+                            ImGui.PopID();
+
+                            ImGui.BeginDisabled(!SingleColorPostImgui);
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorPostStrength");
+                            ImGui.SliderFloat("Percentage", ref SingleColorFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                            ImGui.PopID();
+                            ImGui.EndDisabled();
+                        }
+
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.TableSetColumnIndex(0);
+                        if (ImGui.CollapsingHeader("SingleColorSmallest", TreeFlags | ImGuiTreeNodeFlags.SpanAllColumns))
+                        {
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSmallestPreCheckbox");
+                            ImGui.Checkbox("pre imgui", ref SingleColorSmallestPreImgui);
+                            ImGui.PopID();
+
+                            ImGui.BeginDisabled(!SingleColorSmallestPreImgui);
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSmallestPreStrength");
+                            ImGui.SliderFloat("Percentage", ref SingleColorSmallestFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                            ImGui.PopID();
+                            ImGui.EndDisabled();
+
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSmallestPostCheckbox");
+                            ImGui.Checkbox("post imgui", ref SingleColorSmallestPostImgui);
+                            ImGui.PopID();
+
+                            ImGui.BeginDisabled(!SingleColorSmallestPostImgui);
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSmallestPostStrength");
+                            ImGui.SliderFloat("Percentage", ref SingleColorSmallestFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                            ImGui.PopID();
+                            ImGui.EndDisabled();
+                        }
+
+                        ImGui.TableNextRow();
+                        ImGui.TableNextColumn();
+                        ImGui.TableSetColumnIndex(0);
+                        if (ImGui.CollapsingHeader("SingleColorSolid", TreeFlags | ImGuiTreeNodeFlags.SpanAllColumns))
+                        {
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSolidPreCheckbox");
+                            ImGui.Checkbox("pre imgui", ref SingleColorSolidPreImgui);
+                            ImGui.PopID();
+
+                            ImGui.BeginDisabled(!SingleColorSolidPreImgui);
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSolidPreStrength");
+                            ImGui.SliderFloat("Percentage", ref SingleColorSolidFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                            ImGui.PopID();
+                            ImGui.EndDisabled();
+
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSolidPostCheckbox");
+                            ImGui.Checkbox("post imgui", ref SingleColorSolidPostImgui);
+                            ImGui.PopID();
+
+                            ImGui.BeginDisabled(!SingleColorSolidPostImgui);
+                            ImGui.TableNextColumn();
+                            ImGui.PushID("SingleColorSolidPostStrength");
+                            ImGui.SliderFloat("Percentage", ref SingleColorSolidFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                             ImGui.PopID();
                             ImGui.EndDisabled();
                         }
