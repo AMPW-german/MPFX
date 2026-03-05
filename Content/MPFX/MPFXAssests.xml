@@ -1,5 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Assets>
+	<MPFXProfile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Id="MPFXProfile">
+		<ColorBalancePreImgui>true</ColorBalancePreImgui>
+		<ColorBalancePreImguiSeparateRGB>false</ColorBalancePreImguiSeparateRGB>
+		<ColorBalanceMatPreImgui M11="-0.441" M12="-0.441" M13="-0.441" M14="0" M21="1.222" M22="1.222" M23="1.222" M24="0" M31="0.643" M32="0.643" M33="0.643" M34="0" M41="0" M42="0" M43="0" M44="1" />
+		<ColorBalancePostImgui>false</ColorBalancePostImgui>
+		<ColorBalancePostImguiSeparateRGB>false</ColorBalancePostImguiSeparateRGB>
+		<ColorBalanceMatPostImgui M11="0" M12="0" M13="0" M14="0" M21="1" M22="1" M23="1" M24="0" M31="1" M32="1" M33="1" M34="0" M41="0" M42="0" M43="0" M44="1" />
+		<ColorTempPreImgui>true</ColorTempPreImgui>
+		<ColorTempFloatPreImgui>40000</ColorTempFloatPreImgui>
+		<ColorTempPostImgui>false</ColorTempPostImgui>
+		<ColorTempFloatPostImgui>6500</ColorTempFloatPostImgui>
+		<HueShiftPreImgui>true</HueShiftPreImgui>
+		<HueShiftFloatPreImgui>115.862</HueShiftFloatPreImgui>
+		<HueShiftPostImgui>false</HueShiftPostImgui>
+		<HueShiftFloatPostImgui>0</HueShiftFloatPostImgui>
+		<BrightnessPreImgui>false</BrightnessPreImgui>
+		<BrightnessFloatPreImgui>1</BrightnessFloatPreImgui>
+		<BrightnessPostImgui>false</BrightnessPostImgui>
+		<BrightnessFloatPostImgui>1</BrightnessFloatPostImgui>
+		<ContrastPreImgui>true</ContrastPreImgui>
+		<ContrastFloatPreImgui>1.05</ContrastFloatPreImgui>
+		<ContrastPostImgui>false</ContrastPostImgui>
+		<ContrastFloatPostImgui>1</ContrastFloatPostImgui>
+		<SaturationPreImgui>true</SaturationPreImgui>
+		<SaturationFloatPreImgui>4</SaturationFloatPreImgui>
+		<SaturationPostImgui>false</SaturationPostImgui>
+		<SaturationFloatPostImgui>1</SaturationFloatPostImgui>
+		<ColorOverlayPreImgui>false</ColorOverlayPreImgui>
+		<ColorOverlayFloatPreImgui X="0" Y="0" Z="0" W="0" />
+		<ColorOverlayPostImgui>false</ColorOverlayPostImgui>
+		<ColorOverlayFloatPostImgui X="0" Y="0" Z="0" W="0" />
+		<VignettePreImgui>false</VignettePreImgui>
+		<VignettePreAspectRatio>1</VignettePreAspectRatio>
+		<VignetteFloatPreImgui X="0" Y="0" Z="0" W="0" />
+		<VignetteColorPreImgui X="0" Y="0" Z="0" W="0" />
+		<VignettePostImgui>false</VignettePostImgui>
+		<VignettePostAspectRatio>1</VignettePostAspectRatio>
+		<VignetteFloatPostImgui X="0" Y="0" Z="0" W="0" />
+		<VignetteColorPostImgui X="0" Y="0" Z="0" W="0" />
+		<RGB2HSVPreImgui>false</RGB2HSVPreImgui>
+		<RGB2HSVFloatPreImgui>0</RGB2HSVFloatPreImgui>
+		<RGB2HSVPostImgui>false</RGB2HSVPostImgui>
+		<RGB2HSVFloatPostImgui>0</RGB2HSVFloatPostImgui>
+		<HSV2RGBPreImgui>false</HSV2RGBPreImgui>
+		<HSV2RGBFloatPreImgui>0</HSV2RGBFloatPreImgui>
+		<HSV2RGBPostImgui>false</HSV2RGBPostImgui>
+		<HSV2RGBFloatPostImgui>0</HSV2RGBFloatPostImgui>
+		<SingleColorPreImgui>false</SingleColorPreImgui>
+		<SingleColorFloatPreImgui>0</SingleColorFloatPreImgui>
+		<SingleColorPostImgui>false</SingleColorPostImgui>
+		<SingleColorFloatPostImgui>0</SingleColorFloatPostImgui>
+		<SingleColorSmallestPreImgui>false</SingleColorSmallestPreImgui>
+		<SingleColorSmallestFloatPreImgui>0</SingleColorSmallestFloatPreImgui>
+		<SingleColorSmallestPostImgui>false</SingleColorSmallestPostImgui>
+		<SingleColorSmallestFloatPostImgui>0</SingleColorSmallestFloatPostImgui>
+		<SingleColorSolidPreImgui>false</SingleColorSolidPreImgui>
+		<SingleColorSolidFloatPreImgui>0</SingleColorSolidFloatPreImgui>
+		<SingleColorSolidPostImgui>false</SingleColorSolidPostImgui>
+		<SingleColorSolidFloatPostImgui>0</SingleColorSolidFloatPostImgui>
+	</MPFXProfile>
+	
+	
+	
 	<PostProcessingShader Id="MPFXColorBalanceShaderPre" Path="Shaders/ColorBalancePre.frag" RenderPassId="32" SubpassId="55">
 		<MPFXMat3BufferAsset Id="MPFXColorBalanceBuffer" Size="1" />
 	</PostProcessingShader>
