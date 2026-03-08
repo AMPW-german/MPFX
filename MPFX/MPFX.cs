@@ -1,5 +1,6 @@
 ﻿using Brutal.ImGuiApi;
 using Brutal.Numerics;
+using Core;
 using KSA;
 using ModMenu;
 using MPFX.Buffers;
@@ -67,6 +68,8 @@ namespace MPFX
         [StarMapAfterGui]
         public void AfterGui(double dt)
         {
+            Renderer renderer = Program.GetRenderer();
+
             //Vehicle? rocket = Program.ControlledVehicle;
             //float t = rocket.GetManualThrottle();
 
@@ -126,6 +129,16 @@ namespace MPFX
                 Span<MPFXVec4Buffer> vignettePostData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXVignettePostBuffer"));
                 vignettePostData[0].a = CurrentProfile.VignettePostImgui ? CurrentProfile.VignetteFloatPostImgui : float4.Zero;
                 vignettePostData[0].b = CurrentProfile.VignettePostImgui ? CurrentProfile.VignetteColorPostImgui : float4.Zero;
+
+                Span<MPFXVec4Buffer> FilmGrainData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXFilmGrainBuffer"));
+                FilmGrainData[0].a = new float4(
+                    CurrentProfile.FilmGrainPreImgui ? CurrentProfile.FilmGrainData.XY : float2.Zero,
+                    CurrentProfile.FilmGrainPostImgui ? CurrentProfile.FilmGrainData.ZW : float2.Zero
+                );
+                // Adjust time for filmgrain
+                CurrentProfile.FilmGrainPreTime += (float)dt * CurrentProfile.FilmGrainPreTimeMultiplier * (CurrentProfile.FilmGrainPreTimeWarpMultiplier ? (float)Universe.SimulationSpeed : 1f);
+                CurrentProfile.FilmGrainPostTime += (float)dt * CurrentProfile.FilmGrainPostTimeMultiplier * (CurrentProfile.FilmGrainPostTimeWarpMultiplier ? (float)Universe.SimulationSpeed : 1f);
+                FilmGrainData[0].b = new float4(renderer.Extent.Width, renderer.Extent.Height, CurrentProfile.FilmGrainPreTime, CurrentProfile.FilmGrainPostTime); // width, height, framenum
             }
 
             if (MPFXMat4Buffer.LookupSpan != null)
@@ -148,6 +161,10 @@ namespace MPFX
                 ImGui.SetNextWindowSizeConstraints(
                     new float2(650f, 500f),
                     new float2(float.MaxValue)
+                );
+                ImGui.SetNextWindowPos(
+                    new float2(renderer.Extent.Width * 0.7f - 325f, 75f),
+                    ImGuiCond.FirstUseEver
                 );
                 if (ImGui.Begin("MPFX shader menu", ref ShowWindow, ImGuiWindowFlags.NoSavedSettings))
                 {
@@ -731,7 +748,6 @@ namespace MPFX
                             #region ColorOverlayImgui
                             ImGui.TableNextRow();
                             ImGui.TableNextColumn();
-                            ImGui.TableSetColumnIndex(0);
                             if (ImGui.CollapsingHeader("ColorOverlay", TreeFlags | ImGuiTreeNodeFlags.SpanAllColumns))
                             {
                                 ImGui.TableNextRow();
@@ -823,6 +839,73 @@ namespace MPFX
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
                                 ImGui.Unindent();
+                            }
+                            #endregion
+
+                            #region FilmGrainImgui
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            if (ImGui.CollapsingHeader("Filmgrain", TreeFlags | ImGuiTreeNodeFlags.SpanAllColumns))
+                            {
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("FilmGrainPreCheckbox");
+                                ImGui.Checkbox("pre imgui", ref CurrentProfile.FilmGrainPreImgui);
+                                ImGui.PopID();
+                                ImGui.TableNextColumn();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("FilmGrainPreReset");
+                                if (ImGui.Button("Reset"))
+                                {
+                                    CurrentProfile.FilmGrainData.X = 2f;
+                                    CurrentProfile.FilmGrainData.Y = 1f;
+                                    CurrentProfile.FilmGrainPreTimeMultiplier = 1f;
+                                    CurrentProfile.FilmGrainPreTimeWarpMultiplier = false;
+                                }
+                                ImGui.PopID();
+
+                                ImGui.BeginDisabled(!CurrentProfile.FilmGrainPreImgui);
+                                ImGui.Indent(20f);
+                                ImguiSliderRow("Grainsize", "FilmGrainSizePre", 0.01f, 12f, ref CurrentProfile.FilmGrainData.X);
+                                ImguiSliderRow("Intensity", "FilmGrainIntensityPre", 0.001f, 4f, ref CurrentProfile.FilmGrainData.Y);
+                                ImguiSliderRow("Timemultiplier", "FilmGrainPreTimeMultiplier", 0f, 12f, ref CurrentProfile.FilmGrainPreTimeMultiplier);
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("FilmGrainPreTimeWarpMultiplierCheckbox");
+                                ImGui.Checkbox("Timewarp multiplier", ref CurrentProfile.FilmGrainPreTimeWarpMultiplier);
+                                ImGui.PopID();
+                                ImGui.Unindent();
+                                ImGui.EndDisabled();
+
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("FilmGrainPostCheckbox");
+                                ImGui.Checkbox("Post imgui", ref CurrentProfile.FilmGrainPostImgui);
+                                ImGui.PopID();
+                                ImGui.TableNextColumn();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("FilmGrainPostReset");
+                                if (ImGui.Button("Reset"))
+                                {
+                                    CurrentProfile.FilmGrainData.Z = 2f;
+                                    CurrentProfile.FilmGrainData.W = 1f;
+                                    CurrentProfile.FilmGrainPostTimeMultiplier = 1f;
+                                    CurrentProfile.FilmGrainPostTimeWarpMultiplier = false;
+                                }
+                                ImGui.PopID();
+
+                                ImGui.BeginDisabled(!CurrentProfile.FilmGrainPostImgui);
+                                ImGui.Indent(20f);
+                                ImguiSliderRow("Grainsize", "FilmGrainSizePost", 0.01f, 12f, ref CurrentProfile.FilmGrainData.Z);
+                                ImguiSliderRow("Intensity", "FilmGrainIntensityPost", 0.001f, 4f, ref CurrentProfile.FilmGrainData.W);
+                                ImguiSliderRow("Timemultiplier", "FilmGrainPostTimeMultiplier", 0f, 12f, ref CurrentProfile.FilmGrainPostTimeMultiplier);
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("FilmGrainPostTimeWarpMultiplierCheckbox");
+                                ImGui.Checkbox("Time warp multiplier", ref CurrentProfile.FilmGrainPostTimeWarpMultiplier);
+                                ImGui.PopID();
+                                ImGui.Unindent();
+                                ImGui.EndDisabled();
                             }
                             #endregion
 

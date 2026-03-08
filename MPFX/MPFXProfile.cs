@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace MPFX
 {
@@ -135,6 +136,25 @@ namespace MPFX
         public bool ShouldSerializeVignetteFloatPostImgui() => VignetteFloatPostImgui != float4.Zero;
         public float4 VignetteColorPostImgui = float4.Zero;
         public bool ShouldSerializeVignetteColorPostImgui() => VignetteColorPostImgui != float4.Zero;
+
+        [DefaultValue(false)]
+        public bool FilmGrainPreImgui = false;
+        [DefaultValue(false)]
+        public bool FilmGrainPostImgui = false;
+        public float4 FilmGrainData = new float4(2, 1, 2, 1); // preGrainSize, preGrainStrength, postGrainSize, postGrainStrength
+        public bool ShouldSerializeFilmGrainData() => FilmGrainData != new float4(2, 1, 2, 1);
+        [DefaultValue(1f)]
+        public float FilmGrainPreTimeMultiplier = 1f;
+        [DefaultValue(false)]
+        public bool FilmGrainPreTimeWarpMultiplier = false;
+        [XmlIgnore]
+        public float FilmGrainPreTime = 0f;
+        [DefaultValue(1f)]
+        public float FilmGrainPostTimeMultiplier = 1f;
+        [DefaultValue(false)]
+        public bool FilmGrainPostTimeWarpMultiplier = false;
+        [XmlIgnore]
+        public float FilmGrainPostTime = 0f;
 
         #region funStuff
         [DefaultValue(false)]
@@ -279,7 +299,7 @@ namespace MPFX
             this.RGB2HSVFloatPreImgui = profile.RGB2HSVFloatPreImgui;
             this.RGB2HSVPostImgui = profile.RGB2HSVPostImgui;
             this.RGB2HSVFloatPostImgui = profile.RGB2HSVFloatPostImgui;
-            
+
             this.HSV2RGBPreImgui = profile.HSV2RGBPreImgui;
             this.HSV2RGBFloatPreImgui = profile.HSV2RGBFloatPreImgui;
             this.HSV2RGBPostImgui = profile.HSV2RGBPostImgui;
