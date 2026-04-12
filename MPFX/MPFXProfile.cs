@@ -28,6 +28,7 @@ namespace MPFX
         }
 
         public static HashSet<MPFXProfile> Profiles { get; set; } = new HashSet<MPFXProfile>() { };
+        public int LookupIndex { get; set; }
 
         #region variables
         [DefaultValue(false)]
