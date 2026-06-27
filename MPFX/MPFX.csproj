@@ -33,7 +33,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="Lib.Harmony" Version="2.4.2" />
-		<PackageReference Include="ModMenu.Attributes" Version="1.0.1" />
 		<PackageReference Include="StarMap.API" Version="0.3.6" />
 	</ItemGroup>
 
@@ -41,6 +40,9 @@
 	  <Reference Include="KittenExtensions">
 	    <HintPath>..\..\..\..\Documents\My Games\Kitten Space Agency\mods\KittenExtensions\KittenExtensions.dll</HintPath>
 	    <Private>False</Private>
+	  </Reference>
+	  <Reference Include="ModMenu.Attributes">
+	    <HintPath>..\ModMenu.Attributes.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 
@@ -60,21 +62,6 @@
 		<None Update="Shaders\*">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<!-- <None Update="Shaders\GreyScaleFragPost.frag">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Shaders\GreyScaleFragPre.frag">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Shaders\GreyScalePost.frag">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Shaders\GreyScalePre.frag">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="Shaders\SingleColor.frag">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None> -->
 	</ItemGroup>
 
 	<Target Name="CopyOutputToExternalFolder" AfterTargets="Build">

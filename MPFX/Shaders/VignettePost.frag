@@ -12,7 +12,6 @@ layout(set = 1, binding = 1) uniform DataBuffer {
 
 layout(location = 0) in vec2 v_Uv;
 
-
 void main()
 {
   vec4 c = subpassLoad(Source);
