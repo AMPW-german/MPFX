@@ -58,9 +58,11 @@
 	
 	<PostProcessingShader Id="MPFXFilmGrainPre" Path="Shaders/FilmGrainPre.frag" RenderPassId="32" SubpassId="68">
 		<MPFXVec4BufferAsset Id="MPFXFilmGrainBuffer" Size="1" />
+		<MPFXPushConstantsFloatBufferAsset Id="MPFXFilmgrainPreTimeBuffer" />
 	</PostProcessingShader>
 	<GlobalPostShader Id="MPFXFilmGrainPost" Path="Shaders/FilmGrainPost.frag" RenderPassId="32" SubpassId="68">
 		<MPFXVec4BufferAsset Id="MPFXFilmGrainBuffer" />
+		<MPFXPushConstantsFloatBufferAsset Id="MPFXFilmgrainPostTimeBuffer" />
 	</GlobalPostShader>
 	
 	<PostProcessingShader Id="MPFXRGB2HSVShaderPre" Path="Shaders/RGB2HSVEffectsPre.frag" RenderPassId="32" SubpassId="63">

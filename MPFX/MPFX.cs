@@ -29,6 +29,8 @@ namespace MPFX
         public static MPFXProfile CurrentProfile { get; private set; } = MPFXProfile.DefaultProfile;
         private static byte[] CurrentProfileID = null;
 
+        public static bool UpdateValues = true; // Pushes new values to the mapped memory buffers
+
         public static void ApplyProfile(MPFXProfile profile)
         {
             CurrentProfile = profile;
@@ -43,8 +45,9 @@ namespace MPFX
             if (ImGui.Button("Open")) ShowWindow = true;
         }
 
-        private static void ImguiSliderRow(string text, string id, float min, float max, ref float value)
+        private static bool ImguiSliderRow(string text, string id, float min, float max, ref float value)
         {
+            bool changed = false;
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
             ImGui.PushID($"{id}RowLabel");
@@ -54,13 +57,14 @@ namespace MPFX
             ImGui.PushID($"{id}RowSlider");
             float liftPre = CurrentProfile.ColorBalanceMatPreImgui[0, 0];
             ImGui.SetNextItemWidth(-1f);
-            ImGui.SliderFloat("", ref value, min, max, flags: ImGuiSliderFlags.AlwaysClamp);
+            changed |= ImGui.SliderFloat("", ref value, min, max, flags: ImGuiSliderFlags.AlwaysClamp);
             ImGui.PopID();
             ImGui.TableNextColumn();
             ImGui.SetNextItemWidth(-1f);
             ImGui.PushID($"{id}Input");
-            ImGui.InputFloat("", ref value);
+            changed |= ImGui.InputFloat("", ref value);
             ImGui.PopID();
+            return changed;
         }
 
         public static Vector4 float2Vector(float4 input) => new Vector4(input.R, input.G, input.B, input.A);
@@ -73,79 +77,93 @@ namespace MPFX
             //Vehicle? rocket = Program.ControlledVehicle;
             //float t = rocket.GetManualThrottle();
 
-            if (MPFXDefaultBuffer.LookupSpan != null)
+            if (MPFXPushConstantsFloatBuffer.LookupSpan != null)
             {
-                Span<MPFXDefaultBuffer> BrightnessData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXBrightnessBuffer"));
-                BrightnessData[0].a = CurrentProfile.BrightnessPreImgui ? CurrentProfile.BrightnessFloatPreImgui : 1f;
-                BrightnessData[0].b = CurrentProfile.BrightnessPostImgui ? CurrentProfile.BrightnessFloatPostImgui : 1f;
-
-                Span<MPFXDefaultBuffer> ContrastData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXContrastBuffer"));
-                ContrastData[0].a = CurrentProfile.ContrastPreImgui ? CurrentProfile.ContrastFloatPreImgui : 1f;
-                ContrastData[0].b = CurrentProfile.ContrastPostImgui ? CurrentProfile.ContrastFloatPostImgui : 1f;
-
-                Span<MPFXDefaultBuffer> SaturationData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSaturationBuffer"));
-                SaturationData[0].a = CurrentProfile.SaturationPreImgui ? CurrentProfile.SaturationFloatPreImgui : 1f;
-                SaturationData[0].b = CurrentProfile.SaturationPostImgui ? CurrentProfile.SaturationFloatPostImgui : 1f;
-
-                Span<MPFXDefaultBuffer> ColorTempData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXColorTempBuffer"));
-                ColorTempData[0].a = CurrentProfile.ColorTempPreImgui ? CurrentProfile.ColorTempFloatPreImgui : 0f;
-                ColorTempData[0].b = CurrentProfile.ColorTempPostImgui ? CurrentProfile.ColorTempFloatPostImgui : 0f;
-
-                Span<MPFXDefaultBuffer> HueShiftData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXHueShiftBuffer"));
-                HueShiftData[0].a = CurrentProfile.HueShiftPreImgui ? CurrentProfile.HueShiftFloatPreImgui / 180f * (float)Math.PI : 0f;
-                HueShiftData[0].b = CurrentProfile.HueShiftPostImgui ? CurrentProfile.HueShiftFloatPostImgui / 180f * (float)Math.PI : 0f;
-
-                Span<MPFXDefaultBuffer> Rgb2hsvData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXRGB2HSVBuffer"));
-                Rgb2hsvData[0].a = CurrentProfile.RGB2HSVPreImgui ? CurrentProfile.RGB2HSVFloatPreImgui : 0;
-                Rgb2hsvData[0].b = CurrentProfile.RGB2HSVPostImgui ? CurrentProfile.RGB2HSVFloatPostImgui : 0;
-
-                Span<MPFXDefaultBuffer> Hsv2rgbData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXHSV2RGBBuffer"));
-                Hsv2rgbData[0].a = CurrentProfile.HSV2RGBPreImgui ? CurrentProfile.HSV2RGBFloatPreImgui : 0;
-                Hsv2rgbData[0].b = CurrentProfile.HSV2RGBPostImgui ? CurrentProfile.HSV2RGBFloatPostImgui : 0;
-
-                Span<MPFXDefaultBuffer> SingleColorData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorBuffer"));
-                SingleColorData[0].a = CurrentProfile.SingleColorPreImgui ? CurrentProfile.SingleColorFloatPreImgui : 0;
-                SingleColorData[0].b = CurrentProfile.SingleColorPostImgui ? CurrentProfile.SingleColorFloatPostImgui : 0;
-
-                Span<MPFXDefaultBuffer> SingleColorSmallestData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorSmallestBuffer"));
-                SingleColorSmallestData[0].a = CurrentProfile.SingleColorSmallestPreImgui ? CurrentProfile.SingleColorSmallestFloatPreImgui : 0;
-                SingleColorSmallestData[0].b = CurrentProfile.SingleColorSmallestPostImgui ? CurrentProfile.SingleColorSmallestFloatPostImgui : 0;
-
-                Span<MPFXDefaultBuffer> SingleColorSolidData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorSolidBuffer"));
-                SingleColorSolidData[0].a = CurrentProfile.SingleColorSolidPreImgui ? CurrentProfile.SingleColorSolidFloatPreImgui : 0;
-                SingleColorSolidData[0].b = CurrentProfile.SingleColorSolidPostImgui ? CurrentProfile.SingleColorSolidFloatPostImgui : 0;
-            }
-
-            if (MPFXVec4Buffer.LookupSpan != null)
-            {
-                Span<MPFXVec4Buffer> colorOverlayData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXColorOverlayBuffer"));
-                colorOverlayData[0].a = CurrentProfile.ColorOverlayPreImgui ? CurrentProfile.ColorOverlayFloatPreImgui : float4.Zero;
-                colorOverlayData[0].b = CurrentProfile.ColorOverlayPostImgui ? CurrentProfile.ColorOverlayFloatPostImgui : float4.Zero;
-
-                Span<MPFXVec4Buffer> vignettePreData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXVignettePreBuffer"));
-                vignettePreData[0].a = CurrentProfile.VignettePreImgui ? CurrentProfile.VignetteFloatPreImgui : float4.Zero;
-                vignettePreData[0].b = CurrentProfile.VignettePreImgui ? CurrentProfile.VignetteColorPreImgui : float4.Zero;
-
-                Span<MPFXVec4Buffer> vignettePostData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXVignettePostBuffer"));
-                vignettePostData[0].a = CurrentProfile.VignettePostImgui ? CurrentProfile.VignetteFloatPostImgui : float4.Zero;
-                vignettePostData[0].b = CurrentProfile.VignettePostImgui ? CurrentProfile.VignetteColorPostImgui : float4.Zero;
-
-                Span<MPFXVec4Buffer> FilmGrainData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXFilmGrainBuffer"));
-                FilmGrainData[0].a = new float4(
-                    CurrentProfile.FilmGrainPreImgui ? CurrentProfile.FilmGrainData.XY : float2.Zero,
-                    CurrentProfile.FilmGrainPostImgui ? CurrentProfile.FilmGrainData.ZW : float2.Zero
-                );
-                // Adjust time for filmgrain
                 CurrentProfile.FilmGrainPreTime += (float)dt * CurrentProfile.FilmGrainPreTimeMultiplier * (CurrentProfile.FilmGrainPreTimeWarpMultiplier ? (float)Universe.SimulationSpeed : 1f);
                 CurrentProfile.FilmGrainPostTime += (float)dt * CurrentProfile.FilmGrainPostTimeMultiplier * (CurrentProfile.FilmGrainPostTimeWarpMultiplier ? (float)Universe.SimulationSpeed : 1f);
-                FilmGrainData[0].b = new float4(renderer.Extent.Width, renderer.Extent.Height, CurrentProfile.FilmGrainPreTime, CurrentProfile.FilmGrainPostTime); // width, height, framenum
+
+                Span<MPFXPushConstantsFloatBuffer> FilmgrainPreTime = MPFXPushConstantsFloatBuffer.LookupSpan(KeyHash.Make("MPFXFilmgrainPreTimeBuffer"));
+                FilmgrainPreTime[0].a = CurrentProfile.FilmGrainPreTime;
+
+                Span<MPFXPushConstantsFloatBuffer> FilmgrainPostTime = MPFXPushConstantsFloatBuffer.LookupSpan(KeyHash.Make("MPFXFilmgrainPostTimeBuffer"));
+                FilmgrainPostTime[0].a = CurrentProfile.FilmGrainPostTime;
             }
 
-            if (MPFXMat4Buffer.LookupSpan != null)
+            if (UpdateValues)
             {
-                Span<MPFXMat4Buffer> ColorBalanceData = MPFXMat4Buffer.LookupSpan(KeyHash.Make("MPFXColorBalanceBuffer"));
-                ColorBalanceData[0].a = CurrentProfile.ColorBalancePreImgui ? CurrentProfile.ColorBalanceMatPreImgui : new float4x4();
-                ColorBalanceData[0].b = CurrentProfile.ColorBalancePostImgui ? CurrentProfile.ColorBalanceMatPostImgui : new float4x4();
+                UpdateValues = false;
+
+                if (MPFXDefaultBuffer.LookupSpan != null)
+                {
+                    Span<MPFXDefaultBuffer> BrightnessData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXBrightnessBuffer"));
+                    BrightnessData[0].a = CurrentProfile.BrightnessPreImgui ? CurrentProfile.BrightnessFloatPreImgui : 1f;
+                    BrightnessData[0].b = CurrentProfile.BrightnessPostImgui ? CurrentProfile.BrightnessFloatPostImgui : 1f;
+
+                    Span<MPFXDefaultBuffer> ContrastData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXContrastBuffer"));
+                    ContrastData[0].a = CurrentProfile.ContrastPreImgui ? CurrentProfile.ContrastFloatPreImgui : 1f;
+                    ContrastData[0].b = CurrentProfile.ContrastPostImgui ? CurrentProfile.ContrastFloatPostImgui : 1f;
+
+                    Span<MPFXDefaultBuffer> SaturationData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSaturationBuffer"));
+                    SaturationData[0].a = CurrentProfile.SaturationPreImgui ? CurrentProfile.SaturationFloatPreImgui : 1f;
+                    SaturationData[0].b = CurrentProfile.SaturationPostImgui ? CurrentProfile.SaturationFloatPostImgui : 1f;
+
+                    Span<MPFXDefaultBuffer> ColorTempData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXColorTempBuffer"));
+                    ColorTempData[0].a = CurrentProfile.ColorTempPreImgui ? CurrentProfile.ColorTempFloatPreImgui : 0f;
+                    ColorTempData[0].b = CurrentProfile.ColorTempPostImgui ? CurrentProfile.ColorTempFloatPostImgui : 0f;
+
+                    Span<MPFXDefaultBuffer> HueShiftData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXHueShiftBuffer"));
+                    HueShiftData[0].a = CurrentProfile.HueShiftPreImgui ? CurrentProfile.HueShiftFloatPreImgui / 180f * (float)Math.PI : 0f;
+                    HueShiftData[0].b = CurrentProfile.HueShiftPostImgui ? CurrentProfile.HueShiftFloatPostImgui / 180f * (float)Math.PI : 0f;
+
+                    Span<MPFXDefaultBuffer> Rgb2hsvData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXRGB2HSVBuffer"));
+                    Rgb2hsvData[0].a = CurrentProfile.RGB2HSVPreImgui ? CurrentProfile.RGB2HSVFloatPreImgui : 0;
+                    Rgb2hsvData[0].b = CurrentProfile.RGB2HSVPostImgui ? CurrentProfile.RGB2HSVFloatPostImgui : 0;
+
+                    Span<MPFXDefaultBuffer> Hsv2rgbData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXHSV2RGBBuffer"));
+                    Hsv2rgbData[0].a = CurrentProfile.HSV2RGBPreImgui ? CurrentProfile.HSV2RGBFloatPreImgui : 0;
+                    Hsv2rgbData[0].b = CurrentProfile.HSV2RGBPostImgui ? CurrentProfile.HSV2RGBFloatPostImgui : 0;
+
+                    Span<MPFXDefaultBuffer> SingleColorData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorBuffer"));
+                    SingleColorData[0].a = CurrentProfile.SingleColorPreImgui ? CurrentProfile.SingleColorFloatPreImgui : 0;
+                    SingleColorData[0].b = CurrentProfile.SingleColorPostImgui ? CurrentProfile.SingleColorFloatPostImgui : 0;
+
+                    Span<MPFXDefaultBuffer> SingleColorSmallestData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorSmallestBuffer"));
+                    SingleColorSmallestData[0].a = CurrentProfile.SingleColorSmallestPreImgui ? CurrentProfile.SingleColorSmallestFloatPreImgui : 0;
+                    SingleColorSmallestData[0].b = CurrentProfile.SingleColorSmallestPostImgui ? CurrentProfile.SingleColorSmallestFloatPostImgui : 0;
+
+                    Span<MPFXDefaultBuffer> SingleColorSolidData = MPFXDefaultBuffer.LookupSpan(KeyHash.Make("MPFXSingleColorSolidBuffer"));
+                    SingleColorSolidData[0].a = CurrentProfile.SingleColorSolidPreImgui ? CurrentProfile.SingleColorSolidFloatPreImgui : 0;
+                    SingleColorSolidData[0].b = CurrentProfile.SingleColorSolidPostImgui ? CurrentProfile.SingleColorSolidFloatPostImgui : 0;
+                }
+
+                if (MPFXVec4Buffer.LookupSpan != null)
+                {
+                    Span<MPFXVec4Buffer> colorOverlayData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXColorOverlayBuffer"));
+                    colorOverlayData[0].a = CurrentProfile.ColorOverlayPreImgui ? CurrentProfile.ColorOverlayFloatPreImgui : float4.Zero;
+                    colorOverlayData[0].b = CurrentProfile.ColorOverlayPostImgui ? CurrentProfile.ColorOverlayFloatPostImgui : float4.Zero;
+
+                    Span<MPFXVec4Buffer> vignettePreData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXVignettePreBuffer"));
+                    vignettePreData[0].a = CurrentProfile.VignettePreImgui ? CurrentProfile.VignetteFloatPreImgui : float4.Zero;
+                    vignettePreData[0].b = CurrentProfile.VignettePreImgui ? CurrentProfile.VignetteColorPreImgui : float4.Zero;
+
+                    Span<MPFXVec4Buffer> vignettePostData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXVignettePostBuffer"));
+                    vignettePostData[0].a = CurrentProfile.VignettePostImgui ? CurrentProfile.VignetteFloatPostImgui : float4.Zero;
+                    vignettePostData[0].b = CurrentProfile.VignettePostImgui ? CurrentProfile.VignetteColorPostImgui : float4.Zero;
+
+                    Span<MPFXVec4Buffer> FilmGrainData = MPFXVec4Buffer.LookupSpan(KeyHash.Make("MPFXFilmGrainBuffer"));
+                    FilmGrainData[0].a = new float4(
+                        CurrentProfile.FilmGrainPreImgui ? CurrentProfile.FilmGrainData.XY : float2.Zero,
+                        CurrentProfile.FilmGrainPostImgui ? CurrentProfile.FilmGrainData.ZW : float2.Zero
+                    );
+                    FilmGrainData[0].b = new float4(renderer.Extent.Width, renderer.Extent.Height, 0.0f, 0.0f); // width, height, framenum
+                }
+
+                if (MPFXMat4Buffer.LookupSpan != null)
+                {
+                    Span<MPFXMat4Buffer> ColorBalanceData = MPFXMat4Buffer.LookupSpan(KeyHash.Make("MPFXColorBalanceBuffer"));
+                    ColorBalanceData[0].a = CurrentProfile.ColorBalancePreImgui ? CurrentProfile.ColorBalanceMatPreImgui : new float4x4();
+                    ColorBalanceData[0].b = CurrentProfile.ColorBalancePostImgui ? CurrentProfile.ColorBalanceMatPostImgui : new float4x4();
+                }
             }
 
 
@@ -175,6 +193,8 @@ namespace MPFX
                     }
                     ImGui.Separator();
 #endif
+                    bool valuesChanged = false;
+
                     ImGui.BeginChild("ContentChild", new float2(0f, -32f), ImGuiChildFlags.AlwaysAutoResize);
                     switch (CurrentTab)
                     {
@@ -248,20 +268,21 @@ namespace MPFX
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorBalancePreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.ColorBalancePreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.ColorBalancePreImgui);
                                 ImGui.PopID();
                                 ImGui.Indent(20f);
 
                                 ImGui.BeginDisabled(!CurrentProfile.ColorBalancePreImgui);
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorBalancePreSeparateRGB");
-                                ImGui.Checkbox("Separate RGB", ref CurrentProfile.ColorBalancePreImguiSeparateRGB);
+                                valuesChanged |= ImGui.Checkbox("Separate RGB", ref CurrentProfile.ColorBalancePreImguiSeparateRGB);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorBalancePreReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.ColorBalancePreImguiSeparateRGB = false;
                                     CurrentProfile.ColorBalanceMatPreImgui = new float4x4(
                                         0, 0, 0, 0, // Lift
@@ -275,19 +296,19 @@ namespace MPFX
                                 if (!CurrentProfile.ColorBalancePreImguiSeparateRGB)
                                 {
                                     float LiftPre = CurrentProfile.ColorBalanceMatPreImgui[0, 0];
-                                    ImguiSliderRow("Lift", "ColorBalanceCombinedPreLift", -1f, 1f, ref LiftPre);
+                                    valuesChanged |= ImguiSliderRow("Lift", "ColorBalanceCombinedPreLift", -1f, 1f, ref LiftPre);
                                     CurrentProfile.ColorBalanceMatPreImgui[0, 0] = LiftPre;
                                     CurrentProfile.ColorBalanceMatPreImgui[0, 1] = LiftPre;
                                     CurrentProfile.ColorBalanceMatPreImgui[0, 2] = LiftPre;
 
                                     float GammaPre = CurrentProfile.ColorBalanceMatPreImgui[1, 0];
-                                    ImguiSliderRow("Gamma", "ColorBalanceCombinedPreGamma", 0.01f, 2f, ref GammaPre);
+                                    valuesChanged |= ImguiSliderRow("Gamma", "ColorBalanceCombinedPreGamma", 0.01f, 2f, ref GammaPre);
                                     CurrentProfile.ColorBalanceMatPreImgui[1, 0] = GammaPre;
                                     CurrentProfile.ColorBalanceMatPreImgui[1, 1] = GammaPre;
                                     CurrentProfile.ColorBalanceMatPreImgui[1, 2] = GammaPre;
 
                                     float GainPre = CurrentProfile.ColorBalanceMatPreImgui[2, 0];
-                                    ImguiSliderRow("Gain", "ColorBalanceCombinedPreGain", 0.01f, 2f, ref GainPre);
+                                    valuesChanged |= ImguiSliderRow("Gain", "ColorBalanceCombinedPreGain", 0.01f, 2f, ref GainPre);
                                     CurrentProfile.ColorBalanceMatPreImgui[2, 0] = GainPre;
                                     CurrentProfile.ColorBalanceMatPreImgui[2, 1] = GainPre;
                                     CurrentProfile.ColorBalanceMatPreImgui[2, 2] = GainPre;
@@ -301,15 +322,15 @@ namespace MPFX
                                     {
                                         ImGui.Indent(20f);
                                         float LiftRedPre = CurrentProfile.ColorBalanceMatPreImgui[0, 0];
-                                        ImguiSliderRow("Lift", "ColorBalanceCombinedRedPreLift", -1f, 1f, ref LiftRedPre);
+                                        valuesChanged |= ImguiSliderRow("Lift", "ColorBalanceCombinedRedPreLift", -1f, 1f, ref LiftRedPre);
                                         CurrentProfile.ColorBalanceMatPreImgui[0, 0] = LiftRedPre;
 
                                         float GammaRedPre = CurrentProfile.ColorBalanceMatPreImgui[1, 0];
-                                        ImguiSliderRow("Gamma", "ColorBalanceCombinedRedPreGamma", 0.01f, 2f, ref GammaRedPre);
+                                        valuesChanged |= ImguiSliderRow("Gamma", "ColorBalanceCombinedRedPreGamma", 0.01f, 2f, ref GammaRedPre);
                                         CurrentProfile.ColorBalanceMatPreImgui[1, 0] = GammaRedPre;
 
                                         float GainRedPre = CurrentProfile.ColorBalanceMatPreImgui[2, 0];
-                                        ImguiSliderRow("Gain", "ColorBalanceCombinedRedPreGain", 0.01f, 2f, ref GainRedPre);
+                                        valuesChanged |= ImguiSliderRow("Gain", "ColorBalanceCombinedRedPreGain", 0.01f, 2f, ref GainRedPre);
                                         CurrentProfile.ColorBalanceMatPreImgui[2, 0] = GainRedPre;
                                         ImGui.Unindent();
                                     }
@@ -343,15 +364,15 @@ namespace MPFX
                                     {
                                         ImGui.Indent(20f);
                                         float LiftBluePre = CurrentProfile.ColorBalanceMatPreImgui[0, 2];
-                                        ImguiSliderRow("Lift", "ColorBalanceCombinedBluePreLift", -1f, 1f, ref LiftBluePre);
+                                        valuesChanged |= ImguiSliderRow("Lift", "ColorBalanceCombinedBluePreLift", -1f, 1f, ref LiftBluePre);
                                         CurrentProfile.ColorBalanceMatPreImgui[0, 2] = LiftBluePre;
 
                                         float GammaBluePre = CurrentProfile.ColorBalanceMatPreImgui[1, 2];
-                                        ImguiSliderRow("Gamma", "ColorBalanceCombinedBluePreGamma", 0.01f, 2f, ref GammaBluePre);
+                                        valuesChanged |= ImguiSliderRow("Gamma", "ColorBalanceCombinedBluePreGamma", 0.01f, 2f, ref GammaBluePre);
                                         CurrentProfile.ColorBalanceMatPreImgui[1, 2] = GammaBluePre;
 
                                         float GainBluePre = CurrentProfile.ColorBalanceMatPreImgui[2, 2];
-                                        ImguiSliderRow("Gain", "ColorBalanceCombinedBluePreGain", 0.01f, 2f, ref GainBluePre);
+                                        valuesChanged |= ImguiSliderRow("Gain", "ColorBalanceCombinedBluePreGain", 0.01f, 2f, ref GainBluePre);
                                         CurrentProfile.ColorBalanceMatPreImgui[2, 2] = GainBluePre;
                                         ImGui.Unindent();
                                     }
@@ -364,20 +385,21 @@ namespace MPFX
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorBalancePostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.ColorBalancePostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.ColorBalancePostImgui);
                                 ImGui.PopID();
                                 ImGui.Indent(20f);
 
                                 ImGui.BeginDisabled(!CurrentProfile.ColorBalancePostImgui);
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorBalancePostSeparateRGB");
-                                ImGui.Checkbox("Separate RGB", ref CurrentProfile.ColorBalancePostImguiSeparateRGB);
+                                valuesChanged |= ImGui.Checkbox("Separate RGB", ref CurrentProfile.ColorBalancePostImguiSeparateRGB);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorBalancePostReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.ColorBalancePostImguiSeparateRGB = false;
                                     CurrentProfile.ColorBalanceMatPostImgui = new float4x4(
                                         0, 0, 0, 0, // Lift
@@ -391,19 +413,19 @@ namespace MPFX
                                 if (!CurrentProfile.ColorBalancePostImguiSeparateRGB)
                                 {
                                     float LiftPost = CurrentProfile.ColorBalanceMatPostImgui[0, 0];
-                                    ImguiSliderRow("Lift", "ColorBalanceCombinedPostLift", -1f, 1f, ref LiftPost);
+                                    valuesChanged |= ImguiSliderRow("Lift", "ColorBalanceCombinedPostLift", -1f, 1f, ref LiftPost);
                                     CurrentProfile.ColorBalanceMatPostImgui[0, 0] = LiftPost;
                                     CurrentProfile.ColorBalanceMatPostImgui[0, 1] = LiftPost;
                                     CurrentProfile.ColorBalanceMatPostImgui[0, 2] = LiftPost;
 
                                     float GammaPost = CurrentProfile.ColorBalanceMatPostImgui[1, 0];
-                                    ImguiSliderRow("Gamma", "ColorBalanceCombinedPostGamma", 0.01f, 2f, ref GammaPost);
+                                    valuesChanged |= ImguiSliderRow("Gamma", "ColorBalanceCombinedPostGamma", 0.01f, 2f, ref GammaPost);
                                     CurrentProfile.ColorBalanceMatPostImgui[1, 0] = GammaPost;
                                     CurrentProfile.ColorBalanceMatPostImgui[1, 1] = GammaPost;
                                     CurrentProfile.ColorBalanceMatPostImgui[1, 2] = GammaPost;
 
                                     float GainPost = CurrentProfile.ColorBalanceMatPostImgui[2, 0];
-                                    ImguiSliderRow("Gain", "ColorBalanceCombinedPostGain", 0.01f, 2f, ref GainPost);
+                                    valuesChanged |= ImguiSliderRow("Gain", "ColorBalanceCombinedPostGain", 0.01f, 2f, ref GainPost);
                                     CurrentProfile.ColorBalanceMatPostImgui[2, 0] = GainPost;
                                     CurrentProfile.ColorBalanceMatPostImgui[2, 1] = GainPost;
                                     CurrentProfile.ColorBalanceMatPostImgui[2, 2] = GainPost;
@@ -417,15 +439,15 @@ namespace MPFX
                                     {
                                         ImGui.Indent(20f);
                                         float LiftRedPost = CurrentProfile.ColorBalanceMatPostImgui[0, 0];
-                                        ImguiSliderRow("Lift", "ColorBalanceCombinedRedPostLift", -1f, 1f, ref LiftRedPost);
+                                        valuesChanged |= ImguiSliderRow("Lift", "ColorBalanceCombinedRedPostLift", -1f, 1f, ref LiftRedPost);
                                         CurrentProfile.ColorBalanceMatPostImgui[0, 0] = LiftRedPost;
 
                                         float GammaRedPost = CurrentProfile.ColorBalanceMatPostImgui[1, 0];
-                                        ImguiSliderRow("Gamma", "ColorBalanceCombinedRedPostGamma", 0.01f, 2f, ref GammaRedPost);
+                                        valuesChanged |= ImguiSliderRow("Gamma", "ColorBalanceCombinedRedPostGamma", 0.01f, 2f, ref GammaRedPost);
                                         CurrentProfile.ColorBalanceMatPostImgui[1, 0] = GammaRedPost;
 
                                         float GainRedPost = CurrentProfile.ColorBalanceMatPostImgui[2, 0];
-                                        ImguiSliderRow("Gain", "ColorBalanceCombinedRedPostGain", 0.01f, 2f, ref GainRedPost);
+                                        valuesChanged |= ImguiSliderRow("Gain", "ColorBalanceCombinedRedPostGain", 0.01f, 2f, ref GainRedPost);
                                         CurrentProfile.ColorBalanceMatPostImgui[2, 0] = GainRedPost;
                                         ImGui.Unindent();
                                     }
@@ -438,15 +460,15 @@ namespace MPFX
                                     {
                                         ImGui.Indent(20f);
                                         float LiftGreenPost = CurrentProfile.ColorBalanceMatPostImgui[0, 1];
-                                        ImguiSliderRow("Lift", "ColorBalanceCombinedGreenPostLift", -1f, 1f, ref LiftGreenPost);
+                                        valuesChanged |= ImguiSliderRow("Lift", "ColorBalanceCombinedGreenPostLift", -1f, 1f, ref LiftGreenPost);
                                         CurrentProfile.ColorBalanceMatPostImgui[0, 1] = LiftGreenPost;
 
                                         float GammaGreenPost = CurrentProfile.ColorBalanceMatPostImgui[1, 1];
-                                        ImguiSliderRow("Gamma", "ColorBalanceCombinedGreenPostGamma", 0.01f, 2f, ref GammaGreenPost);
+                                        valuesChanged |= ImguiSliderRow("Gamma", "ColorBalanceCombinedGreenPostGamma", 0.01f, 2f, ref GammaGreenPost);
                                         CurrentProfile.ColorBalanceMatPostImgui[1, 1] = GammaGreenPost;
 
                                         float GainGreenPost = CurrentProfile.ColorBalanceMatPostImgui[2, 1];
-                                        ImguiSliderRow("Gain", "ColorBalanceCombinedGreenPostGain", 0.01f, 2f, ref GainGreenPost);
+                                        valuesChanged |= ImguiSliderRow("Gain", "ColorBalanceCombinedGreenPostGain", 0.01f, 2f, ref GainGreenPost);
                                         CurrentProfile.ColorBalanceMatPostImgui[2, 1] = GainGreenPost;
                                         ImGui.Unindent();
                                     }
@@ -459,15 +481,15 @@ namespace MPFX
                                     {
                                         ImGui.Indent(20f);
                                         float LiftBluePost = CurrentProfile.ColorBalanceMatPostImgui[0, 2];
-                                        ImguiSliderRow("Lift", "ColorBalanceCombinedBluePostLift", -1f, 1f, ref LiftBluePost);
+                                        valuesChanged |= ImguiSliderRow("Lift", "ColorBalanceCombinedBluePostLift", -1f, 1f, ref LiftBluePost);
                                         CurrentProfile.ColorBalanceMatPostImgui[0, 2] = LiftBluePost;
 
                                         float GammaBluePost = CurrentProfile.ColorBalanceMatPostImgui[1, 2];
-                                        ImguiSliderRow("Gamma", "ColorBalanceCombinedBluePostGamma", 0.01f, 2f, ref GammaBluePost);
+                                        valuesChanged |= ImguiSliderRow("Gamma", "ColorBalanceCombinedBluePostGamma", 0.01f, 2f, ref GammaBluePost);
                                         CurrentProfile.ColorBalanceMatPostImgui[1, 2] = GammaBluePost;
 
                                         float GainBluePost = CurrentProfile.ColorBalanceMatPostImgui[2, 2];
-                                        ImguiSliderRow("Gain", "ColorBalanceCombinedBluePostGain", 0.01f, 2f, ref GainBluePost);
+                                        valuesChanged |= ImguiSliderRow("Gain", "ColorBalanceCombinedBluePostGain", 0.01f, 2f, ref GainBluePost);
                                         CurrentProfile.ColorBalanceMatPostImgui[2, 2] = GainBluePost;
                                         ImGui.Unindent();
                                     }
@@ -490,7 +512,7 @@ namespace MPFX
                                 ImGui.TableNextColumn();
                                 ImGui.Indent(20f);
                                 ImGui.PushID("ColorTempPreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.ColorTempPreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.ColorTempPreImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -504,14 +526,14 @@ namespace MPFX
 
                                 ImGui.BeginDisabled(!CurrentProfile.ColorTempPreImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Kelvin", "ColorTempPre", 1000f, 40000f, ref CurrentProfile.ColorTempFloatPreImgui);
+                                valuesChanged |= ImguiSliderRow("Kelvin", "ColorTempPre", 1000f, 40000f, ref CurrentProfile.ColorTempFloatPreImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorTempPostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.ColorTempPostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.ColorTempPostImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -519,13 +541,14 @@ namespace MPFX
                                 ImGui.PushID("ColorTempPostReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.ColorTempFloatPostImgui = 6500f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.ColorTempPostImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Kelvin", "ColorTempPost", 1000f, 40000f, ref CurrentProfile.ColorTempFloatPostImgui);
+                                valuesChanged |= ImguiSliderRow("Kelvin", "ColorTempPost", 1000f, 40000f, ref CurrentProfile.ColorTempFloatPostImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
@@ -543,7 +566,7 @@ namespace MPFX
                                 ImGui.TableNextColumn();
                                 ImGui.Indent(20f);
                                 ImGui.PushID("HueShiftPreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.HueShiftPreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.HueShiftPreImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -551,20 +574,21 @@ namespace MPFX
                                 ImGui.PushID("HueShiftPreReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.HueShiftFloatPreImgui = 0f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.HueShiftPreImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Degree", "HueShiftPre", 0f, 360f, ref CurrentProfile.HueShiftFloatPreImgui);
+                                valuesChanged |= ImguiSliderRow("Degree", "HueShiftPre", 0f, 360f, ref CurrentProfile.HueShiftFloatPreImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("HueShiftPostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.HueShiftPostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.HueShiftPostImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -572,13 +596,14 @@ namespace MPFX
                                 ImGui.PushID("HueShiftPostReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.HueShiftFloatPostImgui = 0f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.HueShiftPostImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Degree", "HueShiftPost", 0f, 360f, ref CurrentProfile.HueShiftFloatPostImgui);
+                                valuesChanged |= ImguiSliderRow("Degree", "HueShiftPost", 0f, 360f, ref CurrentProfile.HueShiftFloatPostImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
@@ -596,7 +621,7 @@ namespace MPFX
                                 ImGui.TableNextColumn();
                                 ImGui.Indent(20f);
                                 ImGui.PushID("BrightnessPreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.BrightnessPreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.BrightnessPreImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -604,20 +629,21 @@ namespace MPFX
                                 ImGui.PushID("BrightnessPreReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.BrightnessFloatPreImgui = 1f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.BrightnessPreImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Multiplier", "BrightnessPre", 0.01f, 4f, ref CurrentProfile.BrightnessFloatPreImgui);
+                                valuesChanged |= ImguiSliderRow("Multiplier", "BrightnessPre", 0.01f, 4f, ref CurrentProfile.BrightnessFloatPreImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("BrightnessPostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.BrightnessPostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.BrightnessPostImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -625,13 +651,14 @@ namespace MPFX
                                 ImGui.PushID("BrightnessPostReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.BrightnessFloatPostImgui = 1f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.BrightnessPostImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Multiplier", "BrightnessPost", 0.01f, 4f, ref CurrentProfile.BrightnessFloatPostImgui);
+                                valuesChanged |= ImguiSliderRow("Multiplier", "BrightnessPost", 0.01f, 4f, ref CurrentProfile.BrightnessFloatPostImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
@@ -649,7 +676,7 @@ namespace MPFX
                                 ImGui.TableNextColumn();
                                 ImGui.Indent(20f);
                                 ImGui.PushID("ContrastPreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.ContrastPreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.ContrastPreImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -657,20 +684,21 @@ namespace MPFX
                                 ImGui.PushID("ContrastPreReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.ContrastFloatPreImgui = 1f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.ContrastPreImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Adjustment", "ContrastPre", 0.01f, 4f, ref CurrentProfile.ContrastFloatPreImgui);
+                                valuesChanged |= ImguiSliderRow("Adjustment", "ContrastPre", 0.01f, 4f, ref CurrentProfile.ContrastFloatPreImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ContrastPostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.ContrastPostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.ContrastPostImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -678,13 +706,14 @@ namespace MPFX
                                 ImGui.PushID("ContrastPostReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.ContrastFloatPostImgui = 1f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.ContrastPostImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Adjustment", "ContrastPost", 0.01f, 4f, ref CurrentProfile.ContrastFloatPostImgui);
+                                valuesChanged |= ImguiSliderRow("Adjustment", "ContrastPost", 0.01f, 4f, ref CurrentProfile.ContrastFloatPostImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
@@ -702,7 +731,7 @@ namespace MPFX
                                 ImGui.TableNextColumn();
                                 ImGui.Indent(20f);
                                 ImGui.PushID("SaturationPreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.SaturationPreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.SaturationPreImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -710,20 +739,21 @@ namespace MPFX
                                 ImGui.PushID("SaturationPreReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.SaturationFloatPreImgui = 1f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.SaturationPreImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Multiplier", "SaturationPre", 0.01f, 4f, ref CurrentProfile.SaturationFloatPreImgui);
+                                valuesChanged |= ImguiSliderRow("Multiplier", "SaturationPre", 0.01f, 4f, ref CurrentProfile.SaturationFloatPreImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("SaturationPostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.SaturationPostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.SaturationPostImgui);
                                 ImGui.PopID();
 
                                 ImGui.TableNextColumn();
@@ -731,13 +761,14 @@ namespace MPFX
                                 ImGui.PushID("SaturationPostReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.SaturationFloatPostImgui = 1f;
                                 }
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.SaturationPostImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Multiplier", "SaturationPost", 0.01f, 4f, ref CurrentProfile.SaturationFloatPostImgui);
+                                valuesChanged |= ImguiSliderRow("Multiplier", "SaturationPost", 0.01f, 4f, ref CurrentProfile.SaturationFloatPostImgui);
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
 
@@ -753,28 +784,28 @@ namespace MPFX
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorOverlayPreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.ColorOverlayPreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.ColorOverlayPreImgui);
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.ColorOverlayPreImgui);
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorOverlayPreStrength");
                                 ImGui.SetNextItemWidth(200f);
-                                ImGui.ColorPicker4("Color", ref CurrentProfile.ColorOverlayFloatPreImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
+                                valuesChanged |= ImGui.ColorPicker4("Color", ref CurrentProfile.ColorOverlayFloatPreImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
                                 ImGui.PopID();
                                 ImGui.EndDisabled();
 
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorOverlayPostCheckbox");
-                                ImGui.Checkbox("post imgui", ref CurrentProfile.ColorOverlayPostImgui);
+                                valuesChanged |= ImGui.Checkbox("post imgui", ref CurrentProfile.ColorOverlayPostImgui);
                                 ImGui.PopID();
 
                                 ImGui.BeginDisabled(!CurrentProfile.ColorOverlayPostImgui);
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("ColorOverlayPostStrength");
                                 ImGui.SetNextItemWidth(200f);
-                                ImGui.ColorPicker4("Color", ref CurrentProfile.ColorOverlayFloatPostImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
+                                valuesChanged |= ImGui.ColorPicker4("Color", ref CurrentProfile.ColorOverlayFloatPostImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
                                 ImGui.PopID();
                                 ImGui.EndDisabled();
                             }
@@ -791,23 +822,23 @@ namespace MPFX
                                 ImGui.Indent(20f);
 
                                 ImGui.PushID("VignettePreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.VignettePreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.VignettePreImgui);
                                 ImGui.Indent(20);
                                 ImGui.PopID();
                                 ImGui.BeginDisabled(!CurrentProfile.VignettePreImgui);
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("VignettePreColor");
                                 ImGui.SetNextItemWidth(275f);
-                                ImGui.ColorPicker4("Color", ref CurrentProfile.VignetteColorPreImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
+                                valuesChanged |= ImGui.ColorPicker4("Color", ref CurrentProfile.VignetteColorPreImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
                                 ImGui.PopID();
 
                                 float rPre = CurrentProfile.VignetteFloatPreImgui.X;
-                                ImguiSliderRow("Outer radius", "VignettePreOuterRadius", 0f, (float)Program.MainViewport.Size.X / Program.MainViewport.Size.Y, ref rPre);
+                                valuesChanged |= ImguiSliderRow("Outer radius", "VignettePreOuterRadius", 0f, (float)Program.MainViewport.Size.X / Program.MainViewport.Size.Y, ref rPre);
                                 CurrentProfile.VignetteFloatPreImgui.X = rPre;
                                 float gPre = CurrentProfile.VignetteFloatPreImgui.Y;
-                                ImguiSliderRow("Inner radius", "VignettePreInnerRadius", 0f, rPre - 0.001f, ref gPre);
+                                valuesChanged |= ImguiSliderRow("Inner radius", "VignettePreInnerRadius", 0f, rPre - 0.001f, ref gPre);
                                 CurrentProfile.VignetteFloatPreImgui.Y = Math.Min(gPre, rPre - 0.001f);
-                                ImguiSliderRow("Aspectratio", "VignettePreAspectratio", 0.0001f, 5f, ref CurrentProfile.VignettePreAspectRatio);
+                                valuesChanged |= ImguiSliderRow("Aspectratio", "VignettePreAspectratio", 0.0001f, 5f, ref CurrentProfile.VignettePreAspectRatio);
                                 CurrentProfile.VignetteFloatPreImgui.Z = CurrentProfile.VignettePreAspectRatio * Program.MainViewport.Size.Y / Program.MainViewport.Size.X;
 
                                 ImGui.Unindent();
@@ -817,23 +848,23 @@ namespace MPFX
                                 ImGui.TableNextColumn();
 
                                 ImGui.PushID("VignettePostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.VignettePostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.VignettePostImgui);
                                 ImGui.Indent(20);
                                 ImGui.PopID();
                                 ImGui.BeginDisabled(!CurrentProfile.VignettePostImgui);
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("VignettePostColor");
                                 ImGui.SetNextItemWidth(275f);
-                                ImGui.ColorPicker4("Color", ref CurrentProfile.VignetteColorPostImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
+                                valuesChanged |= ImGui.ColorPicker4("Color", ref CurrentProfile.VignetteColorPostImgui, ImGuiColorEditFlags.DisplayRGB | ImGuiColorEditFlags.DisplayHSV | ImGuiColorEditFlags.DisplayRGB);
                                 ImGui.PopID();
 
                                 float rPost = CurrentProfile.VignetteFloatPostImgui.X;
-                                ImguiSliderRow("Outer radius", "VignettePostOuterRadius", 0f, (float)Program.MainViewport.Size.X / Program.MainViewport.Size.Y, ref rPost);
+                                valuesChanged |= ImguiSliderRow("Outer radius", "VignettePostOuterRadius", 0f, (float)Program.MainViewport.Size.X / Program.MainViewport.Size.Y, ref rPost);
                                 CurrentProfile.VignetteFloatPostImgui.X = rPost;
                                 float gPost = CurrentProfile.VignetteFloatPostImgui.Y;
-                                ImguiSliderRow("Inner radius", "VignettePostInnerRadius", 0f, rPost - 0.001f, ref gPost);
+                                valuesChanged |= ImguiSliderRow("Inner radius", "VignettePostInnerRadius", 0f, rPost - 0.001f, ref gPost);
                                 CurrentProfile.VignetteFloatPostImgui.Y = Math.Min(gPost, rPost - 0.001f);
-                                ImguiSliderRow("Aspectratio", "VignettePostAspectratio", 0.0001f, 5f, ref CurrentProfile.VignettePostAspectRatio);
+                                valuesChanged |= ImguiSliderRow("Aspectratio", "VignettePostAspectratio", 0.0001f, 5f, ref CurrentProfile.VignettePostAspectRatio);
                                 CurrentProfile.VignetteFloatPostImgui.Z = CurrentProfile.VignettePostAspectRatio * Program.MainViewport.Size.Y / Program.MainViewport.Size.X;
 
                                 ImGui.Unindent();
@@ -850,13 +881,14 @@ namespace MPFX
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("FilmGrainPreCheckbox");
-                                ImGui.Checkbox("pre imgui", ref CurrentProfile.FilmGrainPreImgui);
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.FilmGrainPreImgui);
                                 ImGui.PopID();
                                 ImGui.TableNextColumn();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("FilmGrainPreReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.FilmGrainData.X = 2f;
                                     CurrentProfile.FilmGrainData.Y = 1f;
                                     CurrentProfile.FilmGrainPreTimeMultiplier = 1f;
@@ -866,13 +898,13 @@ namespace MPFX
 
                                 ImGui.BeginDisabled(!CurrentProfile.FilmGrainPreImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Grainsize", "FilmGrainSizePre", 0.01f, 12f, ref CurrentProfile.FilmGrainData.X);
-                                ImguiSliderRow("Intensity", "FilmGrainIntensityPre", 0.001f, 4f, ref CurrentProfile.FilmGrainData.Y);
-                                ImguiSliderRow("Timemultiplier", "FilmGrainPreTimeMultiplier", 0f, 12f, ref CurrentProfile.FilmGrainPreTimeMultiplier);
+                                valuesChanged |= ImguiSliderRow("Grainsize", "FilmGrainSizePre", 0.01f, 12f, ref CurrentProfile.FilmGrainData.X);
+                                valuesChanged |= ImguiSliderRow("Intensity", "FilmGrainIntensityPre", 0.001f, 4f, ref CurrentProfile.FilmGrainData.Y);
+                                valuesChanged |= ImguiSliderRow("Timemultiplier", "FilmGrainPreTimeMultiplier", 0f, 12f, ref CurrentProfile.FilmGrainPreTimeMultiplier);
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("FilmGrainPreTimeWarpMultiplierCheckbox");
-                                ImGui.Checkbox("Timewarp multiplier", ref CurrentProfile.FilmGrainPreTimeWarpMultiplier);
+                                valuesChanged |= ImGui.Checkbox("Timewarp multiplier", ref CurrentProfile.FilmGrainPreTimeWarpMultiplier);
                                 ImGui.PopID();
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
@@ -880,13 +912,14 @@ namespace MPFX
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("FilmGrainPostCheckbox");
-                                ImGui.Checkbox("Post imgui", ref CurrentProfile.FilmGrainPostImgui);
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.FilmGrainPostImgui);
                                 ImGui.PopID();
                                 ImGui.TableNextColumn();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("FilmGrainPostReset");
                                 if (ImGui.Button("Reset"))
                                 {
+                                    valuesChanged = true;
                                     CurrentProfile.FilmGrainData.Z = 2f;
                                     CurrentProfile.FilmGrainData.W = 1f;
                                     CurrentProfile.FilmGrainPostTimeMultiplier = 1f;
@@ -896,13 +929,13 @@ namespace MPFX
 
                                 ImGui.BeginDisabled(!CurrentProfile.FilmGrainPostImgui);
                                 ImGui.Indent(20f);
-                                ImguiSliderRow("Grainsize", "FilmGrainSizePost", 0.01f, 12f, ref CurrentProfile.FilmGrainData.Z);
-                                ImguiSliderRow("Intensity", "FilmGrainIntensityPost", 0.001f, 4f, ref CurrentProfile.FilmGrainData.W);
-                                ImguiSliderRow("Timemultiplier", "FilmGrainPostTimeMultiplier", 0f, 12f, ref CurrentProfile.FilmGrainPostTimeMultiplier);
+                                valuesChanged |= ImguiSliderRow("Grainsize", "FilmGrainSizePost", 0.01f, 12f, ref CurrentProfile.FilmGrainData.Z);
+                                valuesChanged |= ImguiSliderRow("Intensity", "FilmGrainIntensityPost", 0.001f, 4f, ref CurrentProfile.FilmGrainData.W);
+                                valuesChanged |= ImguiSliderRow("Timemultiplier", "FilmGrainPostTimeMultiplier", 0f, 12f, ref CurrentProfile.FilmGrainPostTimeMultiplier);
                                 ImGui.TableNextRow();
                                 ImGui.TableNextColumn();
                                 ImGui.PushID("FilmGrainPostTimeWarpMultiplierCheckbox");
-                                ImGui.Checkbox("Time warp multiplier", ref CurrentProfile.FilmGrainPostTimeWarpMultiplier);
+                                valuesChanged |= ImGui.Checkbox("Time warp multiplier", ref CurrentProfile.FilmGrainPostTimeWarpMultiplier);
                                 ImGui.PopID();
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
@@ -927,26 +960,26 @@ namespace MPFX
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("RGB2HSVPreCheckbox");
-                                    ImGui.Checkbox("pre imgui", ref CurrentProfile.RGB2HSVPreImgui);
+                                    valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.RGB2HSVPreImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.RGB2HSVPreImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("RGB2HSVPreStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.RGB2HSVFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.RGB2HSVFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
 
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("RGB2HSVPostCheckbox");
-                                    ImGui.Checkbox("post imgui", ref CurrentProfile.RGB2HSVPostImgui);
+                                    valuesChanged |= ImGui.Checkbox("post imgui", ref CurrentProfile.RGB2HSVPostImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.RGB2HSVPostImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("RGB2HSVPostStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.RGB2HSVFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.RGB2HSVFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
                                 }
@@ -959,26 +992,26 @@ namespace MPFX
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("HSV2RGBPreCheckbox");
-                                    ImGui.Checkbox("pre imgui", ref CurrentProfile.HSV2RGBPreImgui);
+                                    valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.HSV2RGBPreImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.HSV2RGBPreImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("HSV2RGBPreStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.HSV2RGBFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.HSV2RGBFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
 
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("HSV2RGBPostCheckbox");
-                                    ImGui.Checkbox("post imgui", ref CurrentProfile.HSV2RGBPostImgui);
+                                    valuesChanged |= ImGui.Checkbox("post imgui", ref CurrentProfile.HSV2RGBPostImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.HSV2RGBPostImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("HSV2RGBPostStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.HSV2RGBFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.HSV2RGBFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
                                 }
@@ -991,26 +1024,26 @@ namespace MPFX
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorPreCheckbox");
-                                    ImGui.Checkbox("pre imgui", ref CurrentProfile.SingleColorPreImgui);
+                                    valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.SingleColorPreImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.SingleColorPreImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorPreStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
 
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorPostCheckbox");
-                                    ImGui.Checkbox("post imgui", ref CurrentProfile.SingleColorPostImgui);
+                                    valuesChanged |= ImGui.Checkbox("post imgui", ref CurrentProfile.SingleColorPostImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.SingleColorPostImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorPostStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
                                 }
@@ -1023,26 +1056,26 @@ namespace MPFX
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSmallestPreCheckbox");
-                                    ImGui.Checkbox("pre imgui", ref CurrentProfile.SingleColorSmallestPreImgui);
+                                    valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.SingleColorSmallestPreImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.SingleColorSmallestPreImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSmallestPreStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSmallestFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSmallestFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
 
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSmallestPostCheckbox");
-                                    ImGui.Checkbox("post imgui", ref CurrentProfile.SingleColorSmallestPostImgui);
+                                    valuesChanged |= ImGui.Checkbox("post imgui", ref CurrentProfile.SingleColorSmallestPostImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.SingleColorSmallestPostImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSmallestPostStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSmallestFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSmallestFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
                                 }
@@ -1055,26 +1088,26 @@ namespace MPFX
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSolidPreCheckbox");
-                                    ImGui.Checkbox("pre imgui", ref CurrentProfile.SingleColorSolidPreImgui);
+                                    valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.SingleColorSolidPreImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.SingleColorSolidPreImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSolidPreStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSolidFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSolidFloatPreImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
 
                                     ImGui.TableNextRow();
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSolidPostCheckbox");
-                                    ImGui.Checkbox("post imgui", ref CurrentProfile.SingleColorSolidPostImgui);
+                                    valuesChanged |= ImGui.Checkbox("post imgui", ref CurrentProfile.SingleColorSolidPostImgui);
                                     ImGui.PopID();
 
                                     ImGui.BeginDisabled(!CurrentProfile.SingleColorSolidPostImgui);
                                     ImGui.TableNextColumn();
                                     ImGui.PushID("SingleColorSolidPostStrength");
-                                    ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSolidFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
+                                    valuesChanged |= ImGui.SliderFloat("Percentage", ref CurrentProfile.SingleColorSolidFloatPostImgui, 0f, 1f, flags: ImGuiSliderFlags.AlwaysClamp);
                                     ImGui.PopID();
                                     ImGui.EndDisabled();
                                 }
@@ -1121,6 +1154,8 @@ namespace MPFX
                     if (ImGui.Button("Export profile")) CurrentTab = WindowTabs.ExportProfile;
                     ImGui.SameLine();
                     ImGui.EndDisabled();
+
+                    UpdateValues |= valuesChanged;
                 }
                 ImGui.End();
             }

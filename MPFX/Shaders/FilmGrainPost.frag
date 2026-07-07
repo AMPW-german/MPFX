@@ -5,11 +5,14 @@ layout(location = 0) out vec4 outColor;
 layout(set = 1, binding = 0, input_attachment_index = 0) uniform subpassInput Source;
 layout(set = 1, binding = 1) uniform MPFXVec4BufferAsset {
   vec4 data; // preGrainSize, preGrainStrength, postGrainSize, postGrainStrength
-  vec4 config; // width, height, framenum
+  vec4 config; // width, height
+};
+
+layout(push_constant) uniform MPFXPushConstantsFloatAsset {
+  float framenumPost;
 };
 
 layout(location = 0) in vec2 v_Uv;
-
 
 //
 // GLSL textureless classic 3D noise "cnoise",
@@ -245,7 +248,7 @@ void main()
     return;
   }
 
-  vec3 g = vec3(grain(v_Uv, config.xy / data.z, config.w));
+  vec3 g = vec3(grain(v_Uv, config.xy / data.z, framenumPost));
 
   //blend the noise over the background, 
   //i.e. overlay, soft light, additive
