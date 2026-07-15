@@ -30,6 +30,7 @@ namespace MPFX
         private static byte[] CurrentProfileID = null;
 
         public static bool UpdateValues = true; // Pushes new values to the mapped memory buffers
+        private const int GaussianBlurMaxRadius = 20;
 
         public static void ApplyProfile(MPFXProfile profile)
         {
@@ -68,6 +69,53 @@ namespace MPFX
         }
 
         public static Vector4 float2Vector(float4 input) => new Vector4(input.R, input.G, input.B, input.A);
+
+        private static unsafe void UpdateGaussianBlurBuffer(string id, bool enabled, double radius)
+        {
+            Span<MPFXGaussianBlurPushConstantsBuffer> data = MPFXGaussianBlurPushConstantsBuffer.LookupSpan(KeyHash.Make(id));
+            ref MPFXGaussianBlurPushConstantsBuffer blur = ref data[0];
+
+            Span<double> weights = stackalloc double[GaussianBlurMaxRadius + 1];
+            CalculateGaussianWeights(enabled ? radius : 0.0, weights, out int shaderRadius);
+            blur.Radius = shaderRadius;
+
+            fixed (float* destination = blur.Weights)
+            {
+                for (int i = 0; i <= GaussianBlurMaxRadius; i++)
+                {
+                    destination[i] = (float)weights[i];
+                }
+            }
+        }
+
+        private static void CalculateGaussianWeights(double radius, Span<double> weights, out int shaderRadius)
+        {
+            weights.Clear();
+            radius = Math.Clamp(radius, 0.0, GaussianBlurMaxRadius);
+            shaderRadius = (int)Math.Ceiling(radius);
+
+            if (radius <= 0.0 || shaderRadius == 0)
+            {
+                weights[0] = 1.0;
+                return;
+            }
+
+            double sigma = radius / 3.0;
+            double twoSigmaSquared = 2.0 * sigma * sigma;
+            double total = 0.0;
+
+            for (int i = 0; i <= shaderRadius; i++)
+            {
+                double weight = Math.Exp(-(i * i) / twoSigmaSquared);
+                weights[i] = weight;
+                total += i == 0 ? weight : weight * 2.0;
+            }
+
+            for (int i = 0; i <= shaderRadius; i++)
+            {
+                weights[i] /= total;
+            }
+        }
 
         [StarMapAfterGui]
         public void AfterGui(double dt)
@@ -163,6 +211,14 @@ namespace MPFX
                     Span<MPFXMat4Buffer> ColorBalanceData = MPFXMat4Buffer.LookupSpan(KeyHash.Make("MPFXColorBalanceBuffer"));
                     ColorBalanceData[0].a = CurrentProfile.ColorBalancePreImgui ? CurrentProfile.ColorBalanceMatPreImgui : new float4x4();
                     ColorBalanceData[0].b = CurrentProfile.ColorBalancePostImgui ? CurrentProfile.ColorBalanceMatPostImgui : new float4x4();
+                }
+
+                if (MPFXGaussianBlurPushConstantsBuffer.LookupSpan != null)
+                {
+                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderHorizontalPrePushConstantsBuffer", CurrentProfile.GaussianBlurPreImgui, CurrentProfile.GaussianBlurRadiusPreImgui);
+                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderVerticalPrePushConstantsBuffer", CurrentProfile.GaussianBlurPreImgui, CurrentProfile.GaussianBlurRadiusPreImgui);
+                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderHorizontalPostPushConstantsBuffer", CurrentProfile.GaussianBlurPostImgui, CurrentProfile.GaussianBlurRadiusPostImgui);
+                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderVerticalPostPushConstantsBuffer", CurrentProfile.GaussianBlurPostImgui, CurrentProfile.GaussianBlurRadiusPostImgui);
                 }
             }
 
@@ -937,6 +993,59 @@ namespace MPFX
                                 ImGui.PushID("FilmGrainPostTimeWarpMultiplierCheckbox");
                                 valuesChanged |= ImGui.Checkbox("Time warp multiplier", ref CurrentProfile.FilmGrainPostTimeWarpMultiplier);
                                 ImGui.PopID();
+                                ImGui.Unindent();
+                                ImGui.EndDisabled();
+                            }
+                            #endregion
+
+                            #region GaussianBlurImgui
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            if (ImGui.CollapsingHeader("GaussianBlur", TreeFlags | ImGuiTreeNodeFlags.SpanAllColumns))
+                            {
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("GaussianBlurPreCheckbox");
+                                valuesChanged |= ImGui.Checkbox("pre imgui", ref CurrentProfile.GaussianBlurPreImgui);
+                                ImGui.PopID();
+                                ImGui.TableNextColumn();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("GaussianBlurPreReset");
+                                if (ImGui.Button("Reset"))
+                                {
+                                    valuesChanged = true;
+                                    CurrentProfile.GaussianBlurRadiusPreImgui = 0.0;
+                                }
+                                ImGui.PopID();
+
+                                ImGui.BeginDisabled(!CurrentProfile.GaussianBlurPreImgui);
+                                ImGui.Indent(20f);
+                                float radiusPre = (float)CurrentProfile.GaussianBlurRadiusPreImgui;
+                                valuesChanged |= ImguiSliderRow("Radius", "GaussianBlurRadiusPre", 0f, GaussianBlurMaxRadius, ref radiusPre);
+                                CurrentProfile.GaussianBlurRadiusPreImgui = radiusPre;
+                                ImGui.Unindent();
+                                ImGui.EndDisabled();
+
+                                ImGui.TableNextRow();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("GaussianBlurPostCheckbox");
+                                valuesChanged |= ImGui.Checkbox("Post imgui", ref CurrentProfile.GaussianBlurPostImgui);
+                                ImGui.PopID();
+                                ImGui.TableNextColumn();
+                                ImGui.TableNextColumn();
+                                ImGui.PushID("GaussianBlurPostReset");
+                                if (ImGui.Button("Reset"))
+                                {
+                                    valuesChanged = true;
+                                    CurrentProfile.GaussianBlurRadiusPostImgui = 0.0;
+                                }
+                                ImGui.PopID();
+
+                                ImGui.BeginDisabled(!CurrentProfile.GaussianBlurPostImgui);
+                                ImGui.Indent(20f);
+                                float radiusPost = (float)CurrentProfile.GaussianBlurRadiusPostImgui;
+                                valuesChanged |= ImguiSliderRow("Radius", "GaussianBlurRadiusPost", 0f, GaussianBlurMaxRadius, ref radiusPost);
+                                CurrentProfile.GaussianBlurRadiusPostImgui = radiusPost;
                                 ImGui.Unindent();
                                 ImGui.EndDisabled();
                             }
