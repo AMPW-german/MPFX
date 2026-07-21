@@ -108,9 +108,11 @@
 	</GlobalPostShader>
 
 	<PostProcessingShader Id="MPFXGaussianBlurShaderVerticalPre" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
+		<PostProcessingInputReference RenderPassId="33" SubpassId="0" />
 		<MPFXGaussianBlurPushConstantsBufferAsset Id="MPFXGaussianBlurShaderVerticalPrePushConstantsBuffer" />
 	</PostProcessingShader>
 	<GlobalPostShader Id="MPFXGaussianBlurShaderVerticalPost" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
+		<PostProcessingInputReference RenderPassId="33" SubpassId="0" PreImgui="true" />
 		<MPFXGaussianBlurPushConstantsBufferAsset Id="MPFXGaussianBlurShaderVerticalPostPushConstantsBuffer" />
 	</GlobalPostShader>
 </Assets>

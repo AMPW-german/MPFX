@@ -1,8 +1,4 @@
-﻿using KittenExtensions;
-using KSA;
-using ShaderExtensions;
-using System;
-using System.Reflection;
+﻿using System;
 
 #pragma warning disable CS9113
 

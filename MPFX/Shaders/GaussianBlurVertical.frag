@@ -11,6 +11,8 @@ layout(push_constant, std430) uniform BlurParams {
   float weights[21];
 } blur;
 
+layout(set = 1, binding = 1) uniform sampler2D PreviousInput;
+
 void main()
 {
   vec4 color = texture(Source, Uv) * blur.weights[0];
@@ -26,5 +28,7 @@ void main()
     color += texture(Source, clamp(Uv - offset, minUv, maxUv)) * blur.weights[i];
   }
 
-  outColor = color;
+  vec4 inputColor = texture(PreviousInput, Uv);
+
+  outColor = mix(inputColor, color, Uv.x);
 }
