@@ -72,8 +72,8 @@ namespace MPFX
 
         private static unsafe void UpdateGaussianBlurBuffer(string id, bool enabled, double radius)
         {
-            Span<MPFXGaussianBlurPushConstantsBuffer> data = MPFXGaussianBlurPushConstantsBuffer.LookupSpan(KeyHash.Make(id));
-            ref MPFXGaussianBlurPushConstantsBuffer blur = ref data[0];
+            Span<MPFXGaussianBlurBuffer> data = MPFXGaussianBlurBuffer.LookupSpan(KeyHash.Make(id));
+            ref MPFXGaussianBlurBuffer blur = ref data[0];
 
             Span<double> weights = stackalloc double[GaussianBlurMaxRadius + 1];
             CalculateGaussianWeights(enabled ? radius : 0.0, weights, out int shaderRadius);
@@ -213,12 +213,10 @@ namespace MPFX
                     ColorBalanceData[0].b = CurrentProfile.ColorBalancePostImgui ? CurrentProfile.ColorBalanceMatPostImgui : new float4x4();
                 }
 
-                if (MPFXGaussianBlurPushConstantsBuffer.LookupSpan != null)
+                if (MPFXGaussianBlurBuffer.LookupSpan != null)
                 {
-                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderHorizontalPrePushConstantsBuffer", CurrentProfile.GaussianBlurPreImgui, CurrentProfile.GaussianBlurRadiusPreImgui);
-                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderVerticalPrePushConstantsBuffer", CurrentProfile.GaussianBlurPreImgui, CurrentProfile.GaussianBlurRadiusPreImgui);
-                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderHorizontalPostPushConstantsBuffer", CurrentProfile.GaussianBlurPostImgui, CurrentProfile.GaussianBlurRadiusPostImgui);
-                    UpdateGaussianBlurBuffer("MPFXGaussianBlurShaderVerticalPostPushConstantsBuffer", CurrentProfile.GaussianBlurPostImgui, CurrentProfile.GaussianBlurRadiusPostImgui);
+                    UpdateGaussianBlurBuffer("MPFXGaussianBlurPreBuffer", CurrentProfile.GaussianBlurPreImgui, CurrentProfile.GaussianBlurRadiusPreImgui);
+                    UpdateGaussianBlurBuffer("MPFXGaussianBlurPostBuffer", CurrentProfile.GaussianBlurPostImgui, CurrentProfile.GaussianBlurRadiusPostImgui);
                 }
             }
 

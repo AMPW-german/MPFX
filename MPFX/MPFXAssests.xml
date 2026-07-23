@@ -101,16 +101,16 @@
 	</GlobalPostShader>
 
 	<PostProcessingShader Id="MPFXGaussianBlurShaderHorizontalPre" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="33" RequiresUniqueRenderpass="true">
-		<MPFXGaussianBlurPushConstantsBufferAsset Id="MPFXGaussianBlurShaderHorizontalPrePushConstantsBuffer" />
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPreBuffer" Size="1" />
 	</PostProcessingShader>
 	<GlobalPostShader Id="MPFXGaussianBlurShaderHorizontalPost" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="33" RequiresUniqueRenderpass="true">
-		<MPFXGaussianBlurPushConstantsBufferAsset Id="MPFXGaussianBlurShaderHorizontalPostPushConstantsBuffer" />
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPostBuffer" Size="1" />
 	</GlobalPostShader>
 
 	<PostProcessingShader Id="MPFXGaussianBlurShaderVerticalPre" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
-		<MPFXGaussianBlurPushConstantsBufferAsset Id="MPFXGaussianBlurShaderVerticalPrePushConstantsBuffer" />
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPreBuffer" />
 	</PostProcessingShader>
 	<GlobalPostShader Id="MPFXGaussianBlurShaderVerticalPost" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
-		<MPFXGaussianBlurPushConstantsBufferAsset Id="MPFXGaussianBlurShaderVerticalPostPushConstantsBuffer" />
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPostBuffer" />
 	</GlobalPostShader>
 </Assets>
