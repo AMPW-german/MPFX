@@ -11,38 +11,58 @@
 		<OutputPath>bin\$(Configuration)</OutputPath>
 		<AssemblyName>$(ModName)</AssemblyName>
 		<OutputType>Library</OutputType>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Configurations>Debug;Release</Configurations>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+
+		<VersionPrefix>0.3.1</VersionPrefix>
+		<Version>$(VersionPrefix)</Version>
+		<AssemblyVersion>0.3.1.0</AssemblyVersion>
+		<FileVersion>$(VersionPrefix).0</FileVersion>
+
+		<GitShortHash>nogit</GitShortHash>
+		<InformationalVersionPostfix></InformationalVersionPostfix>
+		<IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+
+		<Company>AMPW</Company>
+		<Authors>AMPW</Authors>
+		<Copyright>MIT</Copyright>
 	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+
+	<PropertyGroup>
 		<DebugSymbols>true</DebugSymbols>
 		<DebugType>portable</DebugType>
-		<Optimize>false</Optimize>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-		<ErrorReport>prompt</ErrorReport>
-		<WarningLevel>4</WarningLevel>
-		<Prefer32Bit>false</Prefer32Bit>
-	</PropertyGroup>
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<DefineConstants>TRACE</DefineConstants>
 		<ErrorReport>prompt</ErrorReport>
 		<WarningLevel>4</WarningLevel>
 		<Prefer32Bit>false</Prefer32Bit>
 	</PropertyGroup>
 
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+		<InformationalVersionPostfix>-debug</InformationalVersionPostfix>
+		<DefineConstants>DEBUG;TRACE</DefineConstants>
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+		<Optimize>true</Optimize>
+		<DefineConstants>TRACE</DefineConstants>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<PackageReference Include="Lib.Harmony" Version="2.4.2" />
+		<PackageReference Include="ModMenu.Attributes" Version="1.0.2" GeneratePathProperty="true" />
 		<PackageReference Include="StarMap.API" Version="0.3.6" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="$(PkgModMenu_Attributes)\lib\netstandard2.0\ModMenu.Attributes.dll" Link="ModMenu.Attributes.dll" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Reference Include="KittenExtensions">
 	    <HintPath>..\..\..\..\Documents\My Games\Kitten Space Agency\mods\KittenExtensions\KittenExtensions.dll</HintPath>
 	    <Private>False</Private>
-	  </Reference>
-	  <Reference Include="ModMenu.Attributes">
-	    <HintPath>..\ModMenu.Attributes.dll</HintPath>
 	  </Reference>
 	</ItemGroup>
 
@@ -53,28 +73,23 @@
 		<None Update="mod.toml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="ModMenu.Attributes.dll">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
-		<None Update="ModMenuAssembly\ModMenu.Attributes.dll">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
 		<None Update="Shaders\*">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
-	<Target Name="CopyOutputToExternalFolder" AfterTargets="Build">
+	<Target Name="SetVersionMetadata" BeforeTargets="GetAssemblyVersion">
+		<Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true">
+			<Output TaskParameter="ConsoleOutput" PropertyName="GitShortHashRaw" />
+		</Exec>
+
 		<PropertyGroup>
-			<ExternalFolder>$(SolutionDir)Content\MPFX\</ExternalFolder>
+			<GitShortHash Condition="'$(GitShortHashRaw)' != ''">$([System.String]::Copy('$(GitShortHashRaw)').Trim())</GitShortHash>
+			<GitShortHash Condition="'$(GitShortHash)' == ''">nogit</GitShortHash>
+			<InformationalVersion>v$(VersionPrefix).$(GitShortHash)$(InformationalVersionPostfix)</InformationalVersion>
+			<ProductVersion>$(InformationalVersion)</ProductVersion>
 		</PropertyGroup>
-
-		<!-- Capture all files WITH folder structure -->
-		<ItemGroup>
-			<FilesToCopy Include="$(OutputPath)**\*" />
-		</ItemGroup>
-
-		<!-- Copy while preserving subfolders -->
-		<Copy SourceFiles="@(FilesToCopy)" DestinationFiles="@(FilesToCopy->'$(ExternalFolder)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="false" OverwriteReadOnlyFiles="true" />
 	</Target>
+
+	<Import Project="CopyOutput.targets" />
 </Project>

@@ -58,9 +58,11 @@
 	
 	<PostProcessingShader Id="MPFXFilmGrainPre" Path="Shaders/FilmGrainPre.frag" RenderPassId="32" SubpassId="68">
 		<MPFXVec4BufferAsset Id="MPFXFilmGrainBuffer" Size="1" />
+		<MPFXPushConstantsFloatBufferAsset Id="MPFXFilmgrainPreTimeBuffer" />
 	</PostProcessingShader>
 	<GlobalPostShader Id="MPFXFilmGrainPost" Path="Shaders/FilmGrainPost.frag" RenderPassId="32" SubpassId="68">
 		<MPFXVec4BufferAsset Id="MPFXFilmGrainBuffer" />
+		<MPFXPushConstantsFloatBufferAsset Id="MPFXFilmgrainPostTimeBuffer" />
 	</GlobalPostShader>
 	
 	<PostProcessingShader Id="MPFXRGB2HSVShaderPre" Path="Shaders/RGB2HSVEffectsPre.frag" RenderPassId="32" SubpassId="63">
@@ -96,5 +98,19 @@
 	</PostProcessingShader>
 	<GlobalPostShader Id="MPFXSingleColorSolidShaderPost" Path="Shaders/SingleColorSolidPost.frag" RenderPassId="32" SubpassId="67">
 		<MPFXDefaultBufferAsset Id="MPFXSingleColorSolidBuffer" />
+	</GlobalPostShader>
+
+	<PostProcessingShader Id="MPFXGaussianBlurShaderHorizontalPre" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="33" RequiresUniqueRenderpass="true">
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPreBuffer" Size="1" />
+	</PostProcessingShader>
+	<GlobalPostShader Id="MPFXGaussianBlurShaderHorizontalPost" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="33" RequiresUniqueRenderpass="true">
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPostBuffer" Size="1" />
+	</GlobalPostShader>
+
+	<PostProcessingShader Id="MPFXGaussianBlurShaderVerticalPre" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPreBuffer" />
+	</PostProcessingShader>
+	<GlobalPostShader Id="MPFXGaussianBlurShaderVerticalPost" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
+		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPostBuffer" />
 	</GlobalPostShader>
 </Assets>

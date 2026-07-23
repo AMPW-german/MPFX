@@ -157,6 +157,15 @@ namespace MPFX
         [XmlIgnore]
         public float FilmGrainPostTime = 0f;
 
+        [DefaultValue(false)]
+        public bool GaussianBlurPreImgui = false;
+        [DefaultValue(0.0)]
+        public double GaussianBlurRadiusPreImgui = 0.0;
+        [DefaultValue(false)]
+        public bool GaussianBlurPostImgui = false;
+        [DefaultValue(0.0)]
+        public double GaussianBlurRadiusPostImgui = 0.0;
+
         #region funStuff
         [DefaultValue(false)]
         public bool RGB2HSVPreImgui = false;
@@ -295,6 +304,19 @@ namespace MPFX
             this.VignettePostAspectRatio = profile.VignettePostAspectRatio;
             this.VignetteFloatPostImgui = profile.VignetteFloatPostImgui;
             this.VignetteColorPostImgui = profile.VignetteColorPostImgui;
+
+            this.FilmGrainPreImgui = profile.FilmGrainPreImgui;
+            this.FilmGrainPostImgui = profile.FilmGrainPostImgui;
+            this.FilmGrainData = profile.FilmGrainData;
+            this.FilmGrainPreTimeMultiplier = profile.FilmGrainPreTimeMultiplier;
+            this.FilmGrainPreTimeWarpMultiplier = profile.FilmGrainPreTimeWarpMultiplier;
+            this.FilmGrainPostTimeMultiplier = profile.FilmGrainPostTimeMultiplier;
+            this.FilmGrainPostTimeWarpMultiplier = profile.FilmGrainPostTimeWarpMultiplier;
+
+            this.GaussianBlurPreImgui = profile.GaussianBlurPreImgui;
+            this.GaussianBlurRadiusPreImgui = profile.GaussianBlurRadiusPreImgui;
+            this.GaussianBlurPostImgui = profile.GaussianBlurPostImgui;
+            this.GaussianBlurRadiusPostImgui = profile.GaussianBlurRadiusPostImgui;
 
             this.RGB2HSVPreImgui = profile.RGB2HSVPreImgui;
             this.RGB2HSVFloatPreImgui = profile.RGB2HSVFloatPreImgui;
