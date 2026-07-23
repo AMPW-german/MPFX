@@ -56,6 +56,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Include="$(PkgModMenu_Attributes)\lib\netstandard2.0\ModMenu.Attributes.dll" Link="ModMenu.Attributes.dll" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Reference Include="KittenExtensions">
 	    <HintPath>..\..\..\..\Documents\My Games\Kitten Space Agency\mods\KittenExtensions\KittenExtensions.dll</HintPath>
 	    <Private>False</Private>
