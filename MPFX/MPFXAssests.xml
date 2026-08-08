@@ -1,116 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Assets>
-	<PostProcessingShader Id="MPFXColorBalanceShaderPre" Path="Shaders/ColorBalancePre.frag" RenderPassId="32" SubpassId="55">
+	<PostProcessingShader Id="MPFXColorBalanceShaderPre" Path="Shaders/ColorBalancePre.frag" RenderPassId="128">
 		<MPFXMat3BufferAsset Id="MPFXColorBalanceBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXColorBalanceShaderPost" Path="Shaders/ColorBalancePost.frag" RenderPassId="32" SubpassId="56">
+	<GlobalPostShader Id="MPFXColorBalanceShaderPost" Path="Shaders/ColorBalancePost.frag" RenderPassId="128">
 		<MPFXDefaultBufferAsset Id="MPFXColorBalanceBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXColorTempShaderPre" Path="Shaders/ColorTempPre.frag" RenderPassId="32" SubpassId="56">
+	<PostProcessingShader Id="MPFXColorTempShaderPre" Path="Shaders/ColorTempPre.frag" RenderPassId="129">
 		<MPFXDefaultBufferAsset Id="MPFXColorTempBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXColorTempShaderPost" Path="Shaders/ColorTempPost.frag" RenderPassId="32" SubpassId="56">
+	<GlobalPostShader Id="MPFXColorTempShaderPost" Path="Shaders/ColorTempPost.frag" RenderPassId="129">
 		<MPFXDefaultBufferAsset Id="MPFXColorTempBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXHueShiftShaderPre" Path="Shaders/HueShiftPre.frag" RenderPassId="32" SubpassId="57">
+	<PostProcessingShader Id="MPFXHueShiftShaderPre" Path="Shaders/HueShiftPre.frag" RenderPassId="130">
 		<MPFXDefaultBufferAsset Id="MPFXHueShiftBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXHueShiftShaderPost" Path="Shaders/HueShiftPost.frag" RenderPassId="32" SubpassId="57">
+	<GlobalPostShader Id="MPFXHueShiftShaderPost" Path="Shaders/HueShiftPost.frag" RenderPassId="130">
 		<MPFXDefaultBufferAsset Id="MPFXHueShiftBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXBrightnessShaderPre" Path="Shaders/BrightnessPre.frag" RenderPassId="32" SubpassId="58">
+	<PostProcessingShader Id="MPFXBrightnessShaderPre" Path="Shaders/BrightnessPre.frag" RenderPassId="131">
 		<MPFXDefaultBufferAsset Id="MPFXBrightnessBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXBrightnessShaderPost" Path="Shaders/BrightnessPost.frag" RenderPassId="32" SubpassId="58">
+	<GlobalPostShader Id="MPFXBrightnessShaderPost" Path="Shaders/BrightnessPost.frag" RenderPassId="131">
 		<MPFXDefaultBufferAsset Id="MPFXBrightnessBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXContrastShaderPre" Path="Shaders/ContrastPre.frag" RenderPassId="32" SubpassId="59">
+	<PostProcessingShader Id="MPFXContrastShaderPre" Path="Shaders/ContrastPre.frag" RenderPassId="132">
 		<MPFXDefaultBufferAsset Id="MPFXContrastBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXContrastShaderPost" Path="Shaders/ContrastPost.frag" RenderPassId="32" SubpassId="59">
+	<GlobalPostShader Id="MPFXContrastShaderPost" Path="Shaders/ContrastPost.frag" RenderPassId="132">
 		<MPFXDefaultBufferAsset Id="MPFXContrastBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXSaturationShaderPre" Path="Shaders/SaturationPre.frag" RenderPassId="32" SubpassId="60">
+	<PostProcessingShader Id="MPFXSaturationShaderPre" Path="Shaders/SaturationPre.frag" RenderPassId="133">
 		<MPFXDefaultBufferAsset Id="MPFXSaturationBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXSaturationShaderPost" Path="Shaders/SaturationPost.frag" RenderPassId="32" SubpassId="60">
+	<GlobalPostShader Id="MPFXSaturationShaderPost" Path="Shaders/SaturationPost.frag" RenderPassId="133">
 		<MPFXDefaultBufferAsset Id="MPFXSaturationBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXColorOverlayShaderPre" Path="Shaders/ColorOverlayPre.frag" RenderPassId="32" SubpassId="61">
+	<PostProcessingShader Id="MPFXColorOverlayShaderPre" Path="Shaders/ColorOverlayPre.frag" RenderPassId="134">
 		<MPFXVec4BufferAsset Id="MPFXColorOverlayBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXColorOverlayShaderPost" Path="Shaders/ColorOverlayPost.frag" RenderPassId="32" SubpassId="61">
+	<GlobalPostShader Id="MPFXColorOverlayShaderPost" Path="Shaders/ColorOverlayPost.frag" RenderPassId="134">
 		<MPFXVec4BufferAsset Id="MPFXColorOverlayBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXVignetteShaderPre" Path="Shaders/VignettePre.frag" RenderPassId="32" SubpassId="62">
+	<PostProcessingShader Id="MPFXVignetteShaderPre" Path="Shaders/VignettePre.frag" RenderPassId="135">
 		<MPFXVec4BufferAsset Id="MPFXVignettePreBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXVignetteShaderPost" Path="Shaders/VignettePost.frag" RenderPassId="32" SubpassId="62">
+	<GlobalPostShader Id="MPFXVignetteShaderPost" Path="Shaders/VignettePost.frag" RenderPassId="135">
 		<MPFXVec4BufferAsset Id="MPFXVignettePostBuffer" Size="1" />
 	</GlobalPostShader>
 	
-	<PostProcessingShader Id="MPFXFilmGrainPre" Path="Shaders/FilmGrainPre.frag" RenderPassId="32" SubpassId="68">
+	<PostProcessingShader Id="MPFXFilmGrainPre" Path="Shaders/FilmGrainPre.frag" RenderPassId="136">
 		<MPFXVec4BufferAsset Id="MPFXFilmGrainBuffer" Size="1" />
 		<MPFXPushConstantsFloatBufferAsset Id="MPFXFilmgrainPreTimeBuffer" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXFilmGrainPost" Path="Shaders/FilmGrainPost.frag" RenderPassId="32" SubpassId="68">
+	<GlobalPostShader Id="MPFXFilmGrainPost" Path="Shaders/FilmGrainPost.frag" RenderPassId="136">
 		<MPFXVec4BufferAsset Id="MPFXFilmGrainBuffer" />
 		<MPFXPushConstantsFloatBufferAsset Id="MPFXFilmgrainPostTimeBuffer" />
 	</GlobalPostShader>
 	
-	<PostProcessingShader Id="MPFXRGB2HSVShaderPre" Path="Shaders/RGB2HSVEffectsPre.frag" RenderPassId="32" SubpassId="63">
+	<PostProcessingShader Id="MPFXRGB2HSVShaderPre" Path="Shaders/RGB2HSVEffectsPre.frag" RenderPassId="137">
 		<MPFXDefaultBufferAsset Id="MPFXRGB2HSVBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXRGB2HSVShaderPost" Path="Shaders/RGB2HSVEffectsPost.frag" RenderPassId="32" SubpassId="63">
+	<GlobalPostShader Id="MPFXRGB2HSVShaderPost" Path="Shaders/RGB2HSVEffectsPost.frag" RenderPassId="137">
 		<MPFXDefaultBufferAsset Id="MPFXRGB2HSVBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXHSV2RGBShaderPre" Path="Shaders/HSV2RGBEffectsPre.frag" RenderPassId="32" SubpassId="64">
+	<PostProcessingShader Id="MPFXHSV2RGBShaderPre" Path="Shaders/HSV2RGBEffectsPre.frag" RenderPassId="138">
 		<MPFXDefaultBufferAsset Id="MPFXHSV2RGBBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXHSV2RGBShaderPost" Path="Shaders/HSV2RGBEffectsPost.frag" RenderPassId="32" SubpassId="64">
+	<GlobalPostShader Id="MPFXHSV2RGBShaderPost" Path="Shaders/HSV2RGBEffectsPost.frag" RenderPassId="138">
 		<MPFXDefaultBufferAsset Id="MPFXHSV2RGBBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXSingleColorShaderPre" Path="Shaders/SingleColorPre.frag" RenderPassId="32" SubpassId="65">
+	<PostProcessingShader Id="MPFXSingleColorShaderPre" Path="Shaders/SingleColorPre.frag" RenderPassId="139">
 		<MPFXDefaultBufferAsset Id="MPFXSingleColorBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXSingleColorShaderPost" Path="Shaders/SingleColorPost.frag" RenderPassId="32" SubpassId="65">
+	<GlobalPostShader Id="MPFXSingleColorShaderPost" Path="Shaders/SingleColorPost.frag" RenderPassId="139">
 		<MPFXDefaultBufferAsset Id="MPFXSingleColorBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXSingleColorSmallestShaderPre" Path="Shaders/SingleColorSmallestPre.frag" RenderPassId="32" SubpassId="66">
+	<PostProcessingShader Id="MPFXSingleColorSmallestShaderPre" Path="Shaders/SingleColorSmallestPre.frag" RenderPassId="140">
 		<MPFXDefaultBufferAsset Id="MPFXSingleColorSmallestBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXSingleColorSmallestShaderPost" Path="Shaders/SingleColorSmallestPost.frag" RenderPassId="32" SubpassId="66">
+	<GlobalPostShader Id="MPFXSingleColorSmallestShaderPost" Path="Shaders/SingleColorSmallestPost.frag" RenderPassId="140">
 		<MPFXDefaultBufferAsset Id="MPFXSingleColorSmallestBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXSingleColorSolidShaderPre" Path="Shaders/SingleColorSolidPre.frag" RenderPassId="32" SubpassId="67">
+	<PostProcessingShader Id="MPFXSingleColorSolidShaderPre" Path="Shaders/SingleColorSolidPre.frag" RenderPassId="141">
 		<MPFXDefaultBufferAsset Id="MPFXSingleColorSolidBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXSingleColorSolidShaderPost" Path="Shaders/SingleColorSolidPost.frag" RenderPassId="32" SubpassId="67">
+	<GlobalPostShader Id="MPFXSingleColorSolidShaderPost" Path="Shaders/SingleColorSolidPost.frag" RenderPassId="141">
 		<MPFXDefaultBufferAsset Id="MPFXSingleColorSolidBuffer" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXGaussianBlurShaderHorizontalPre" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="33" RequiresUniqueRenderpass="true">
+	<PostProcessingShader Id="MPFXGaussianBlurShaderHorizontalPre" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="142">
 		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPreBuffer" Size="1" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXGaussianBlurShaderHorizontalPost" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="33" RequiresUniqueRenderpass="true">
+	<GlobalPostShader Id="MPFXGaussianBlurShaderHorizontalPost" Path="Shaders/GaussianBlurHorizontal.frag" RenderPassId="142">
 		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPostBuffer" Size="1" />
 	</GlobalPostShader>
 
-	<PostProcessingShader Id="MPFXGaussianBlurShaderVerticalPre" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
+	<PostProcessingShader Id="MPFXGaussianBlurShaderVerticalPre" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="143">
 		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPreBuffer" />
 	</PostProcessingShader>
-	<GlobalPostShader Id="MPFXGaussianBlurShaderVerticalPost" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="34" RequiresUniqueRenderpass="true">
+	<GlobalPostShader Id="MPFXGaussianBlurShaderVerticalPost" Path="Shaders/GaussianBlurVertical.frag" RenderPassId="143">
 		<MPFXGaussianBlurBufferAsset Id="MPFXGaussianBlurPostBuffer" />
 	</GlobalPostShader>
 </Assets>

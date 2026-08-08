@@ -1,9 +1,18 @@
 #version 450 core
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 Out;
+layout(location = 0) in vec2 Uv;
+layout(set = 1, binding = 0) uniform sampler2D In;
 
-layout(set = 1, binding = 0, input_attachment_index = 0) uniform subpassInput Source;
-layout(set = 1, binding = 1) uniform MPFXVec4BufferAsset {
+layout(std140, set = 1, binding = 1) uniform ShaderTime {
+  uint FrameNumber;
+  float DeltaTime;
+  float RealTimeSinceStart;
+  float TimeSinceStart;
+  float TimeWarpSpeed;
+} Time;
+
+layout(set = 1, binding = 2) uniform MPFXVec4BufferAsset {
   vec4 data; // preGrainSize, preGrainStrength, postGrainSize, postGrainStrength
   vec4 config; // width, height
 };
@@ -11,8 +20,6 @@ layout(set = 1, binding = 1) uniform MPFXVec4BufferAsset {
 layout(push_constant) uniform MPFXPushConstantsFloatAsset {
   float framenumPost;
 };
-
-layout(location = 0) in vec2 v_Uv;
 
 //
 // GLSL textureless classic 3D noise "cnoise",
@@ -240,15 +247,15 @@ float luma(vec4 color) {
 
 void main()
 {
-  vec3 c = clamp(subpassLoad(Source).rgb, 0, 1);
+  vec3 c = clamp(texture(In, Uv).rgb, 0, 1);
 
   if (data.z == 0)
   {
-    outColor = vec4(c, 1);
+    Out = vec4(c, 1);
     return;
   }
 
-  vec3 g = vec3(grain(v_Uv, config.xy / data.z, framenumPost));
+  vec3 g = vec3(grain(Uv, config.xy / data.z, Time.FrameNumber));
 
   //blend the noise over the background, 
   //i.e. overlay, soft light, additive
@@ -263,5 +270,5 @@ void main()
   color = mix(color, c, pow(response, 2.0));
   color = mix(c, color, data.w);
 
-  outColor = vec4(color, 1.0);
+  Out = vec4(color, 1.0);
 }
