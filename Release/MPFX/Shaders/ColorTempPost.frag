@@ -1,9 +1,18 @@
 #version 450 core
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 Out;
+layout(location = 0) in vec2 Uv;
+layout(set = 1, binding = 0) uniform sampler2D In;
 
-layout(set = 1, binding = 0, input_attachment_index = 0) uniform subpassInput Source;
-layout(set = 1, binding = 1) uniform MPFXDefaultBufferAsset {
+layout(std140, set = 1, binding = 1) uniform ShaderTime {
+  uint FrameNumber;
+  float DeltaTime;
+  float RealTimeSinceStart;
+  float TimeSinceStart;
+  float TimeWarpSpeed;
+} Time;
+
+layout(set = 1, binding = 2) uniform MPFXDefaultBufferAsset {
   float preTemp;
   float postTemp;
 };
@@ -33,15 +42,15 @@ vec3 colorTemperatureToRGB(const in float temperature){
 
 void main()
 {
-  vec3 inColor = subpassLoad(Source).rgb;
+  vec3 c = texture(In, Uv).rgb;
 
   // neutral is 6500K
   if (postTemp == 0)
-    outColor = vec4(inColor, 1);
+    Out = vec4(c, 1);
   else
   {
-    vec3 outCol = inColor * colorTemperatureToRGB(postTemp); 
-    outCol *= mix(1.0, dot(inColor, vec3(0.2126, 0.7152, 0.0722)) / max(dot(outCol, vec3(0.2126, 0.7152, 0.0722)), 1e-5), LuminancePreservationFactor);
-    outColor = vec4(outCol, 1);
+    vec3 outCol = c * colorTemperatureToRGB(postTemp); 
+    outCol *= mix(1.0, dot(c, vec3(0.2126, 0.7152, 0.0722)) / max(dot(outCol, vec3(0.2126, 0.7152, 0.0722)), 1e-5), LuminancePreservationFactor);
+    Out = vec4(outCol, 1);
   }
 }

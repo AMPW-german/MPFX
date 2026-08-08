@@ -1,29 +1,34 @@
 #version 450 core
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 Out;
+layout(location = 0) in vec2 Uv;
+layout(set = 1, binding = 0) uniform sampler2D In;
 
-layout(set = 1, binding = 0, input_attachment_index = 0) uniform subpassInput Source;
+layout(std140, set = 1, binding = 1) uniform ShaderTime {
+  uint FrameNumber;
+  float DeltaTime;
+  float RealTimeSinceStart;
+  float TimeSinceStart;
+  float TimeWarpSpeed;
+} Time;
 
 // Data: outer circle, inner circle, aspect ratio
-layout(set = 1, binding = 1) uniform DataBuffer {
+layout(set = 1, binding = 2) uniform DataBuffer {
   vec4 preData;
   vec4 preColor;
 };
 
-layout(location = 0) in vec2 v_Uv;
-
-
 void main()
 {
-  vec4 c = subpassLoad(Source);
+  vec4 c = texture(In, Uv);
 
   if (preData.z == 0)
   {
-    outColor = c;
+    Out = c;
   }
   else
   {
-    vec2 uv2 = v_Uv;
+    vec2 uv2 = Uv;
     uv2 = (uv2 - 0.5) * 2; // normalize to [-1, 1]
     uv2.x = uv2.x / preData.z; // adjust for screen size
 
@@ -34,6 +39,6 @@ void main()
 
     d = clamp(d, 0, 1);
 
-    outColor = vec4(mix(c.rgb, preColor.rgb, d * preColor.a), 1);
+    Out = vec4(mix(c.rgb, preColor.rgb, d * preColor.a), 1);
   }
 }

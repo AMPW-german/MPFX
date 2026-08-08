@@ -1,9 +1,18 @@
 #version 450 core
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) out vec4 Out;
+layout(location = 0) in vec2 Uv;
+layout(set = 1, binding = 0) uniform sampler2D In;
 
-layout(set = 1, binding = 0, input_attachment_index = 0) uniform subpassInput Source;
-layout(set = 1, binding = 1) uniform MPFXDefaultBufferAsset {
+layout(std140, set = 1, binding = 1) uniform ShaderTime {
+    uint FrameNumber;
+    float DeltaTime;
+    float RealTimeSinceStart;
+    float TimeSinceStart;
+    float TimeWarpSpeed;
+} Time;
+
+layout(set = 1, binding = 2) uniform MPFXDefaultBufferAsset {
   float preAmount;
   float postAmount;
 };
@@ -30,8 +39,8 @@ vec3 hsv2rgb(vec3 c)
 
 void main()
 {
-    vec4 c = subpassLoad(Source);
+    vec4 c = texture(In, Uv);
 
     vec3 color = hsv2rgb(c.rgb);
-    outColor = vec4(mix(c.rgb, color, postAmount), 1);
+    Out = vec4(mix(c.rgb, color, postAmount), 1);
 }
