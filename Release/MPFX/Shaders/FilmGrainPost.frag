@@ -255,7 +255,7 @@ void main()
     return;
   }
 
-  vec3 g = vec3(grain(Uv, config.xy / data.z, Time.FrameNumber));
+  vec3 g = vec3(grain(Uv, config.xy / data.z, framenumPost));
 
   //blend the noise over the background, 
   //i.e. overlay, soft light, additive
