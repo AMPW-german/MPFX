@@ -2,6 +2,9 @@
 
 A very simple post processing mod.
 
+> [!WARNING]
+> This mod requires [KittenExtensions Continued (KXC)](https://github.com/AMPW-german/KittenExtensions) as a non-optional dependency. KXC and the original KittenExtensions (KX) cannot be installed together, so remove any existing KX installation before installing KXC. KXC uses the `KittenExtensionsContinued` mod ID while retaining the `KittenExtensions` assembly name for dependent mods.
+
 ## Currently included effects in their default execution order:
 - Color balance using lift, gamma and gain. Either for all channels or per channel.
 - Color Temperature
@@ -31,7 +34,7 @@ Effect profiles is most likely coming in the next release.
 
 - Requires [StarMap](https://github.com/StarMapLoader/StarMap/releases)
 - Requires [ModMenu](https://github.com/MrJeranimo/ModMenu/releases)
-- Requires [KittenExtensions >= v0.4.0](https://github.com/tsholmes/KittenExtensions/releases)
+- Requires [KittenExtensions Continued >= v0.4.0](https://github.com/AMPW-german/KittenExtensions/releases)
 - Requires [ShaderExtensions](https://github.com/AMPW-german/ShaderExtensions/releases)
 - Download zip from releases and extract it into KSAs local mod folder, usually located at "Documents/My Games/Kitten Space Agency/mods"
 

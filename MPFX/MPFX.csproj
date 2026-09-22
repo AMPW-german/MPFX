@@ -56,7 +56,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="$(PkgModMenu_Attributes)\lib\netstandard2.0\ModMenu.Attributes.dll" Link="ModMenu.Attributes.dll" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="$(PkgModMenu_Attributes)\lib\netstandard2.0\ModMenu.Attributes.dll"
+			Link="ModMenu.Attributes.dll" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -65,27 +66,39 @@
 			<Private>False</Private>
 		</Reference>
 		<Reference Include="KittenExtensions">
-			<HintPath>$(KSAModsDir)KittenExtensions/KittenExtensions.dll</HintPath>
+			<HintPath>$(KSAModsDir)KittenExtensionsContinued/KittenExtensions.dll</HintPath>
 			<Private>False</Private>
 		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>
+		<StarMapModDependency Include="KittenExtensionsContinued">
+			<ImportedAssemblies>KittenExtensions</ImportedAssemblies>
+		</StarMapModDependency>
+		<StarMapModDependency Include="ShaderExtensions">
+			<ImportedAssemblies>ShaderExtensions</ImportedAssemblies>
+		</StarMapModDependency>
+	</ItemGroup>
+
+	<ItemGroup>
 		<None Update="$(ModName)Assests.xml">
-		<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<ModManifestArray>assets</ModManifestArray>
 		</None>
 		<None Update="Shaders\*">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
 
 	<Target Name="SetVersionMetadata" BeforeTargets="GetAssemblyVersion">
-		<Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true" IgnoreStandardErrorWarningFormat="true">
+		<Exec Command="git rev-parse --short HEAD" ConsoleToMSBuild="true" IgnoreExitCode="true"
+			IgnoreStandardErrorWarningFormat="true">
 			<Output TaskParameter="ConsoleOutput" PropertyName="GitShortHashRaw" />
 		</Exec>
 
 		<PropertyGroup>
-			<GitShortHash Condition="'$(GitShortHashRaw)' != ''">$([System.String]::Copy('$(GitShortHashRaw)').Trim())</GitShortHash>
+			<GitShortHash Condition="'$(GitShortHashRaw)' != ''">
+				$([System.String]::Copy('$(GitShortHashRaw)').Trim())</GitShortHash>
 			<GitShortHash Condition="'$(GitShortHash)' == ''">nogit</GitShortHash>
 			<InformationalVersion>v$(VersionPrefix).$(GitShortHash)$(InformationalVersionPostfix)</InformationalVersion>
 			<ProductVersion>$(InformationalVersion)</ProductVersion>
