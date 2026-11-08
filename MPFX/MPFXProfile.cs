@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 namespace MPFX
 {
     [KxAsset("MPFXProfile")]
-    public class MPFXProfile : SerializedId, IKeyed, IComparer<MPFXProfile>
+    public class MPFXProfile : SerializedId, IComparer<MPFXProfile>
     {
         public static string ProfileSaveDirectory => Path.Combine(ModLibrary.LocalModsFolderPath, "MPFX", "Profiles");
 
@@ -29,6 +29,8 @@ namespace MPFX
 
         public static HashSet<MPFXProfile> Profiles { get; set; } = new HashSet<MPFXProfile>() { };
         public int LookupIndex { get; set; }
+
+        public string Key => throw new NotImplementedException();
 
         #region variables
         [DefaultValue(false)]
@@ -218,11 +220,6 @@ namespace MPFX
         {
             base.OnDataLoad(mod);
             if (!Profiles.Any(p => p.Id == this.Id)) Profiles.Add(this);
-        }
-
-        public override SerializedId Populate()
-        {
-            throw new System.NotImplementedException();
         }
 
         public override TableString.Row ToRow()
